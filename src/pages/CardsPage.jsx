@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import CardPost from "./CardPost";
+import CardPost from "../components/CardPost";
 import PostAPI from "../services/postAPI";
+import CardsContentLoader from "../loaders/CardsContentLoader";
 
-import { Grid, Box, Skeleton } from "@mui/material";
+import { Grid } from "@mui/material";
+import Header from "../components/Header";
 
-const Cards = () => {
+const CardsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [cards, setCards] = useState(null);
 
@@ -21,7 +23,7 @@ const Cards = () => {
 
   return (
     <div className="posts">
-      <h1>Guitarists Book</h1>
+      <Header />
       <Grid
         container
         spacing={0}
@@ -30,14 +32,7 @@ const Cards = () => {
         style={{ minHeight: "100vh", width: "80vw" }}
       >
         {isLoading ? (
-          <Box>
-            <Skeleton variant="rectangular" width={410} height={68} />
-            <Skeleton width="60%" />
-            <Skeleton />
-            <Skeleton />
-            <Skeleton />
-            <Skeleton />
-          </Box>
+          <CardsContentLoader />
         ) : (
           cards.map((card) => <CardPost card={card} key={card.id} />)
         )}
@@ -46,4 +41,4 @@ const Cards = () => {
   );
 };
 
-export default Cards;
+export default CardsPage;

@@ -14,23 +14,35 @@ import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
 import Typography from "@mui/material/Typography";
 import { AiFillCaretLeft } from "react-icons/ai";
-import Form from "./Form";
+import Form from "../components/Form";
+import PostAPI from "../services/postAPI";
+import { BsBoxArrowInRight } from "react-icons/bs";
+import { FaCross } from "react-icons/fa";
 
-const Card = () => {
+const CardPage = () => {
   const { id } = useParams();
   const [cardState, setCardState] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [wikiURL, setWikiURL] = useState(null);
+  const [city, setCity] = useState(null);
+  const [born, setBorn] = useState(null);
+  const [dead, setDead] = useState(null);
+
+  const fetchCard = async () => {
+    const data = await PostAPI.findOne(id);
+    setCardState(data);
+    setIsLoading(true);
+    setWikiURL(data.data.attributes.wiki);
+    setCity(data.data.attributes.ville);
+    setBorn(data.data.attributes.anneeNaissance);
+    setDead(data.data.attributes.anneeMort);
+    // console.log(data);
+    // console.log(data.data.attributes.ville);
+  };
 
   useEffect(() => {
-    // console.log(id);
-    fetch(`${API_URL}/api/guitarists/${id}?populate=*`)
-      .then((res) => res.json())
-      .then((res) => {
-        // console.log(res);
-        setCardState(res);
-        setIsLoading(true);
-      });
-  }, [id]);
+    fetchCard();
+  }, []);
 
   return (
     <div>
@@ -64,12 +76,31 @@ const Card = () => {
           ) : (
             "Loading..."
           )}
+          <h4 className="cardBioH4">
+            Né à {city} en {born}
+          </h4>
+          <h4 className="cardBioH4">
+            {dead ? dead - born : (new Date().getFullYear() - born).toString()}{" "}
+            ans
+            {dead ? (
+              <FaCross style={{ marginLeft: "3px", paddingTop: "3px" }} />
+            ) : (
+              ""
+            )}
+          </h4>
           <p className="cardBio">
             {isLoading ? (
               `${cardState.data.attributes.bio}`
             ) : (
               <Skeleton variant="text" sx={{ fontSize: "1rem" }} />
             )}
+          </p>
+
+          <p className="savoir-plus">
+            <a href={wikiURL} target="_blank" rel="noopener noreferrer">
+              <BsBoxArrowInRight style={{ paddingTop: "3px" }} />
+              <span>Go to Wiki</span>
+            </a>
           </p>
         </Grid>
       </Grid>
@@ -135,4 +166,4 @@ const Card = () => {
   );
 };
 
-export default Card;
+export default CardPage;

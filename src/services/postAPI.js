@@ -1,5 +1,7 @@
+import { CARDS_URL } from "../config";
+
 function findAll() {
-  return fetch("http://localhost:1337/api/guitarists/?populate=*", {
+  return fetch(`${CARDS_URL}/?populate=*`, {
     method: "GET",
     headers: {
       Accept: "Application/json",
@@ -7,6 +9,11 @@ function findAll() {
   }).then((res) => res.json());
 }
 
+function findOne(id) {
+  return fetch(`${CARDS_URL}/${id}?populate=*`).then((res) => res.json());
+}
+
 export default {
   findAll,
+  findOne,
 };
