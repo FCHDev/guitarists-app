@@ -4,7 +4,7 @@ import { API_URL } from "../config";
 import { Link } from "react-router-dom";
 
 import Grid from "@mui/material/Grid";
-import { Skeleton } from "@mui/material";
+import { Box, Skeleton } from "@mui/material";
 import Button from "@mui/material/Button";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
@@ -18,6 +18,7 @@ import Form from "../components/Form";
 import PostAPI from "../services/postAPI";
 import { BsBoxArrowInRight } from "react-icons/bs";
 import { FaCross } from "react-icons/fa";
+import Header from "../components/Header";
 
 const CardPage = () => {
   const { id } = useParams();
@@ -46,8 +47,6 @@ const CardPage = () => {
 
   return (
     <div>
-      {/*GUITARIST DETAILS PART*/}
-
       <nav>
         <Link to="/">
           <Button style={{ margin: "10px 0" }} variant="contained">
@@ -56,17 +55,28 @@ const CardPage = () => {
           </Button>
         </Link>
       </nav>
-      <Grid container spacing={2}>
-        <Grid item sm="4" alignItems="center" justifyContent="center">
-          {isLoading ? (
-            <img
-              src={API_URL + cardState.data.attributes.pic.data.attributes.url}
-              alt={cardState.data.attributes.pic.data.attributes.name}
-              className="cardImg"
-            />
-          ) : (
-            <Skeleton variant="rect" width="100%" height={400} />
-          )}
+
+      {/*GUITARIST DETAILS PART*/}
+      <Grid container spacing={2} height="auto">
+        <Grid item sm="4">
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="start"
+            className="cardPageImg"
+          >
+            {isLoading ? (
+              <img
+                src={
+                  API_URL + cardState.data.attributes.pic.data.attributes.url
+                }
+                alt={cardState.data.attributes.pic.data.attributes.name}
+                className="cardImg"
+              />
+            ) : (
+              <Skeleton variant="rect" width="100%" height={400} />
+            )}
+          </Box>
         </Grid>
         <Grid item sm="8" alignItems="center" justifyContent="center">
           {isLoading ? (
@@ -88,6 +98,7 @@ const CardPage = () => {
               ""
             )}
           </h4>
+          <h4>Biographie</h4>
           <p className="cardBio">
             {isLoading ? (
               `${cardState.data.attributes.bio}`
@@ -106,10 +117,9 @@ const CardPage = () => {
       </Grid>
 
       {/*COMMENTS PART*/}
-
-      <Grid container spacing={2}>
+      <Grid container spacing={2} mt={2}>
         {/*FORMULAIRE*/}
-        <Grid item md={4} mt={2}>
+        <Grid item md={4}>
           <Form />
         </Grid>
         {/*COMMENTS*/}

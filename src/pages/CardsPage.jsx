@@ -18,7 +18,7 @@ const CardsPage = () => {
     const data = await PostAPI.findAll();
     setCards(data.data);
     setIsLoading(false);
-    // console.log(data.data);
+    // console.log(data);
   };
 
   return (
@@ -29,7 +29,7 @@ const CardsPage = () => {
         spacing={0}
         alignItems="center"
         justifyContent="center"
-        style={{ minHeight: "100vh", width: "80vw" }}
+        style={{ minHeight: "100vh", width: "90vw" }}
       >
         {isLoading ? (
           <CardsContentLoader />

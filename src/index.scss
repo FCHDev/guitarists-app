@@ -42,6 +42,7 @@ code {
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  height: 100%;
   h1 {
     text-align: center;
     color: #292928;
@@ -55,6 +56,10 @@ a {
 
 .MuiButton-containedPrimary svg {
   padding-right: 3px;
+}
+
+.cardPageImg {
+  padding-top: 55px;
 }
 
 .cardBio {

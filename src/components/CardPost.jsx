@@ -14,28 +14,28 @@ import ArtistsMainInfo from "./ArtistsMainInfo";
 
 export default function CardPost({ card }) {
   return (
-    <Card sx={{ maxWidth: 365 }} style={{ margin: "10px" }}>
-      <CardMedia
-        component="img"
-        height="300"
-        image={
-          card.attributes.pic !== null
-            ? API_URL + card.attributes.pic.data.attributes.url
-            : "Pas d'image"
-        }
-        alt={card.attributes.nom}
-      />
-      <CardContent>
-        <ArtistsMainInfo card={card} />
-        <Typography variant="body2" color="text.secondary">
-          {card.attributes.bio.substring(0, 70) + "..."}
-        </Typography>
-      </CardContent>
-      <CardActions>
-        <Link to={`/card/${card.id}`}>
+    <Link to={`/card/${card.id}`}>
+      <Card sx={{ maxWidth: 365 }} style={{ margin: "10px" }}>
+        <CardMedia
+          component="img"
+          height="350"
+          image={
+            card.attributes.pic !== null
+              ? API_URL + card.attributes.pic.data.attributes.url
+              : "Pas d'image"
+          }
+          alt={card.attributes.nom}
+        />
+        <CardContent>
+          <ArtistsMainInfo card={card} />
+          <Typography variant="body2" color="text.secondary">
+            {card.attributes.bio.substring(0, 70) + "..."}
+          </Typography>
+        </CardContent>
+        <CardActions>
           <Button size="small">Learn More</Button>
-        </Link>
-      </CardActions>
-    </Card>
+        </CardActions>
+      </Card>
+    </Link>
   );
 }
