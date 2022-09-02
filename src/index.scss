@@ -1,0 +1,61 @@
+*,
+::before,
+::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  height: 100vh;
+  background: #50514f;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
+.App {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.posts {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  h1 {
+    text-align: center;
+    color: #f6aa1c;
+    margin: 10px 0;
+  }
+}
+
+a {
+  text-decoration: none;
+}
+
+.cardBio {
+  color: #f6aa1c;
+}
+
+.cardBioH1 {
+  margin-bottom: 10px;
+  color: #f6aa1c;
+}
+
+.cardImg {
+  border-radius: 7px;
+  border: 1px solid #f6aa1c;
+  max-width: 100%;
+  height: auto;
+}
