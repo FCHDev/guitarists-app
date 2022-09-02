@@ -24,10 +24,19 @@ export default function CardPost({ card }) {
       />
       <CardContent>
         <Typography gutterBottom variant="h5" component="div">
-          {card.attributes.nom}, {card.attributes.prenom}
+          <span style={{ paddingRight: "6px" }}>
+            {card.attributes.nationalite}
+          </span>
+          {card.attributes.prenom
+            ? `${card.attributes.nom}, ${card.attributes.prenom}`
+            : `${card.attributes.nom}`}
+        </Typography>
+        <Typography variant="body1" color="text.primary" pb={1}>
+          Né à <strong>{card.attributes.ville}</strong> en{" "}
+          {card.attributes.anneeNaissance}
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          {card.attributes.bio.substring(0, 100) + "..."}
+          {card.attributes.bio.substring(0, 150) + "..."}
         </Typography>
       </CardContent>
       <CardActions>
