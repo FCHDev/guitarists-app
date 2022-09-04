@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { useParams } from "react-router";
 import { API_URL } from "../config";
 import { Link } from "react-router-dom";
@@ -18,7 +18,6 @@ import Form from "../components/Form";
 import PostAPI from "../services/postAPI";
 import { BsBoxArrowInRight } from "react-icons/bs";
 import { FaCross } from "react-icons/fa";
-import Header from "../components/Header";
 
 const CardPage = () => {
   const { id } = useParams();
@@ -44,6 +43,10 @@ const CardPage = () => {
   useEffect(() => {
     fetchCard();
   }, []);
+
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+  });
 
   return (
     <div>
@@ -86,10 +89,10 @@ const CardPage = () => {
           ) : (
             "Loading..."
           )}
-          <h4 className="cardBioH4">
+          <h4 className="cardBioInfoH4">
             Né à {city} en {born}
           </h4>
-          <h4 className="cardBioH4">
+          <h4 className="cardBioInfoH4">
             {dead ? dead - born : (new Date().getFullYear() - born).toString()}{" "}
             ans
             {dead ? (
@@ -98,7 +101,7 @@ const CardPage = () => {
               ""
             )}
           </h4>
-          <h4>Biographie</h4>
+          <h4 className="cardBioH4">Biographie</h4>
           <p className="cardBio">
             {isLoading ? (
               `${cardState.data.attributes.bio}`

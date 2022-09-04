@@ -50,6 +50,10 @@ code {
   }
 }
 
+nav {
+  margin-bottom: 0;
+}
+
 a {
   text-decoration: none;
 }
@@ -59,7 +63,7 @@ a {
 }
 
 .cardPageImg {
-  padding-top: 55px;
+  padding-top: 10px;
 }
 
 .cardBio {
@@ -71,8 +75,13 @@ a {
   color: #292928;
   font-family: "JetBrains Mono", sans-serif;
 }
-.cardBioH4 {
+.cardBioInfoH4 {
   margin-bottom: 6px;
+  font-weight: normal;
+}
+
+.cardBioH4 {
+  margin: 6px 0 4px 0;
 }
 
 .cardImg {
