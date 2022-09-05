@@ -1,15 +1,14 @@
-import React from "react";
+import { Chip } from "@mui/material";
 
-const Header = ({ card }) => {
-  const totalGuitarist = () => {
-    console.log(card.data.length());
-  };
-
+const Header = ({ totalGuitarists }) => {
   return (
     <div className="header">
       <h1>guitarists_</h1>
-      {/*AJOUTER UN COMPTEUR*/}
-      <h4>greatests of all time</h4>
+      <h4>
+        the <Chip label={totalGuitarists} variant="outlined" /> G.O.A.T.
+      </h4>
+
+      {/*<h6>Total = {totalGuitarists}</h6>*/}
     </div>
   );
 };

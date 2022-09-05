@@ -30,6 +30,7 @@ code {
 
 .header {
   font-family: "JetBrains Mono", sans-serif;
+  text-align: center;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -56,6 +57,32 @@ nav {
 
 a {
   text-decoration: none;
+}
+
+.control {
+  display: flex;
+  flex-direction: column;
+  margin: 1rem 0;
+}
+
+.search {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.radioSection {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.radio {
+  margin: 0 0.5rem;
+  border: 0.5px solid gray;
+  border-radius: 7px;
+  padding: 0.1rem 0.1rem 0.1rem 0.6rem;
 }
 
 .MuiButton-containedPrimary svg {

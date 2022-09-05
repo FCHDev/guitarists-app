@@ -11,7 +11,6 @@ function App() {
         <Routes>
           <Route path="/" exact element={<CardsPage />} />
           <Route path="card/:id" element={<CardPage />} />
-          <Route path="prout" element={<h1>Prout</h1>} />
         </Routes>
       </div>
     </Container>

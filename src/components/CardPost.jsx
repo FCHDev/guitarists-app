@@ -10,8 +10,6 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import ArtistsMainInfo from "./ArtistsMainInfo";
 
-// console.log(new Date().getFullYear());
-
 export default function CardPost({ card }) {
   return (
     <Link to={`/card/${card.id}`}>
@@ -33,7 +31,7 @@ export default function CardPost({ card }) {
           </Typography>
         </CardContent>
         <CardActions>
-          <Button size="small">Learn More</Button>
+          <Button size="small">En savoir plus</Button>
         </CardActions>
       </Card>
     </Link>
