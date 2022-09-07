@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useState } from "react";
 import { useParams } from "react-router";
-import { API_URL } from "../config";
 import { Link } from "react-router-dom";
+import Form from "../components/Form";
 
 import Grid from "@mui/material/Grid";
 import { Box, Skeleton } from "@mui/material";
@@ -14,35 +14,63 @@ import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
 import Typography from "@mui/material/Typography";
 import { AiFillCaretLeft } from "react-icons/ai";
-import Form from "../components/Form";
-import PostAPI from "../services/postAPI";
 import { BsBoxArrowInRight } from "react-icons/bs";
 import { FaCross } from "react-icons/fa";
+import { onValue, ref } from "firebase/database";
+import { db } from "../services/firebaseConfig";
 
 const CardPage = () => {
   const { id } = useParams();
-  const [cardState, setCardState] = useState(null);
+  // eslint-disable-next-line
+  const [guitarist, setGuitarist] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [nom, setNom] = useState("");
+  const [prenom, setPrenom] = useState("");
   const [wikiURL, setWikiURL] = useState(null);
+  const [imgURL, setImgURL] = useState("");
+  const [bio, setBio] = useState("");
+  const [bio2, setBio2] = useState("");
+  const [bio3, setBio3] = useState("");
   const [city, setCity] = useState(null);
   const [born, setBorn] = useState(null);
   const [dead, setDead] = useState(null);
 
-  const fetchCard = async () => {
-    const data = await PostAPI.findOne(id);
-    setCardState(data);
-    setIsLoading(true);
-    setWikiURL(data.data.attributes.wiki);
-    setCity(data.data.attributes.ville);
-    setBorn(data.data.attributes.anneeNaissance);
-    setDead(data.data.attributes.anneeMort);
-    // console.log(data);
-    // console.log(data.data.attributes.ville);
-  };
+  // const fetchCard = async () => {
+  //   const data = await PostAPI.findOne(id);
+  //   setGuitarist(data);
+  //   setIsLoading(true);
+  //   setWikiURL(data.data.attributes.wiki);
+  //   setCity(data.data.attributes.ville);
+  //   setBorn(data.data.attributes.anneeNaissance);
+  //   setDead(data.data.attributes.anneeMort);
+  //   // console.log(data);
+  //   // console.log(data.data.attributes.ville);
+  // };
 
   useEffect(() => {
-    fetchCard();
-  }, []);
+    onValue(ref(db), (snapshot) => {
+      const data = snapshot.val();
+      if (data !== null) {
+        // eslint-disable-next-line
+        Object.values([data]).map((guitarist) => {
+          setGuitarist(data[id]);
+          setIsLoading(true);
+          setNom(guitarist[id].nom);
+          setPrenom(guitarist[id].prenom);
+          setWikiURL(guitarist[id].wiki);
+          setImgURL(guitarist[id].pic.url);
+          setBio(guitarist[id].bio);
+          setBio2(guitarist[id].bio2);
+          setBio3(guitarist[id].bio3);
+          setCity(guitarist[id].ville);
+          setBorn(guitarist[id].anneeNaissance);
+          setDead(guitarist[id].anneeMort);
+
+          // console.log(guitarist[id]);
+        });
+      }
+    });
+  }, [id]);
 
   useLayoutEffect(() => {
     window.scrollTo(0, 0);
@@ -61,7 +89,7 @@ const CardPage = () => {
 
       {/*GUITARIST DETAILS PART*/}
       <Grid container spacing={2} height="auto">
-        <Grid item sm="4">
+        <Grid item sm={4}>
           <Box
             display="flex"
             justifyContent="center"
@@ -69,22 +97,16 @@ const CardPage = () => {
             className="cardPageImg"
           >
             {isLoading ? (
-              <img
-                src={
-                  API_URL + cardState.data.attributes.pic.data.attributes.url
-                }
-                alt={cardState.data.attributes.pic.data.attributes.name}
-                className="cardImg"
-              />
+              <img src={imgURL} alt={nom} className="cardImg" />
             ) : (
               <Skeleton variant="rect" width="100%" height={400} />
             )}
           </Box>
         </Grid>
-        <Grid item sm="8" alignItems="center" justifyContent="center">
+        <Grid item sm={8} alignItems="center" justifyContent="center">
           {isLoading ? (
             <h1 className="cardBioH1">
-              {cardState.data.attributes.prenom} {cardState.data.attributes.nom}
+              {prenom} {nom}
             </h1>
           ) : (
             "Loading..."
@@ -101,14 +123,18 @@ const CardPage = () => {
               ""
             )}
           </h4>
-          <h4 className="cardBioH4">Biographie</h4>
-          <p className="cardBio">
+          <h3 className="cardBioH4">Biographie</h3>
+          <div className="cardBio">
             {isLoading ? (
-              `${cardState.data.attributes.bio}`
+              <div>
+                <p>{bio}</p>
+                <p>{bio2}</p>
+                <p>{bio3}</p>
+              </div>
             ) : (
               <Skeleton variant="text" sx={{ fontSize: "1rem" }} />
             )}
-          </p>
+          </div>
 
           <p className="savoir-plus">
             <a href={wikiURL} target="_blank" rel="noopener noreferrer">

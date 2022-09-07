@@ -2,7 +2,7 @@ import React from "react";
 import Typography from "@mui/material/Typography";
 import { FaCross } from "react-icons/fa";
 
-const ArtistsMainInfo = ({ card }) => {
+const ArtistsMainInfo = ({ guitarist }) => {
   return (
     <div>
       <Typography
@@ -11,26 +11,23 @@ const ArtistsMainInfo = ({ card }) => {
         component="div"
         style={{ fontFamily: "'JetBrains Mono', sans-serif" }}
       >
-        <span style={{ paddingRight: "6px" }}>
-          {card.attributes.nationalite}
-        </span>
-        {card.attributes.prenom
-          ? `${card.attributes.nom}, ${card.attributes.prenom}`
-          : `${card.attributes.nom}`}
+        <span style={{ paddingRight: "6px" }}>{guitarist.nationalite}</span>
+        {guitarist.prenom
+          ? `${guitarist.nom}, ${guitarist.prenom}`
+          : `${guitarist.nom}`}
       </Typography>
       <Typography variant="body1" color="text.primary" pb={1}>
-        Né à <strong>{card.attributes.ville}</strong> en{" "}
-        {card.attributes.anneeNaissance}
+        Né à <strong>{guitarist.ville}</strong> en {guitarist.anneeNaissance}
       </Typography>
       <Typography variant="body1" color="text.primary" pb={1}>
-        {card.attributes.anneeMort
-          ? card.attributes.anneeMort - card.attributes.anneeNaissance
+        {guitarist.anneeMort
+          ? guitarist.anneeMort - guitarist.anneeNaissance
           : (
-              new Date().getFullYear() - card.attributes.anneeNaissance
+              new Date().getFullYear() - guitarist.anneeNaissance
             ).toString()}{" "}
         ans
         <span>
-          {card.attributes.mort === true ? (
+          {guitarist.mort === true ? (
             <FaCross style={{ marginLeft: "3px", paddingTop: "3px" }} />
           ) : (
             ""

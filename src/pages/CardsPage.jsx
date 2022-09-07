@@ -1,43 +1,52 @@
 import React, { useEffect, useState } from "react";
 import CardPost from "../components/CardPost";
-import PostAPI from "../services/postAPI";
 import CardsContentLoader from "../loaders/CardsContentLoader";
 import Header from "../components/Header";
 import Search from "../components/Search";
 import SwitchAlive from "../components/SwitchAlive";
 import SwitchArea from "../components/SwitchArea";
+import { ref, onValue } from "firebase/database";
+import { db } from "../services/firebaseConfig";
 
 import { Grid } from "@mui/material";
 import ScrollToTop from "react-scroll-to-top";
 
 const CardsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [cards, setCards] = useState(null);
+  const [guitarists, setGuitarists] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRadio, setSelectedRadio] = useState("");
   const [selectedAreaRadio, setSelectedAreaRadio] = useState("");
   const [totalGuitarists, setTotalGuitarists] = useState("");
 
   useEffect(() => {
-    fetchAllCards();
+    onValue(ref(db), (snapshot) => {
+      const data = snapshot.val();
+      if (data !== null) {
+        // eslint-disable-next-line
+        Object.values([data]).map((guitarist) => {
+          setGuitarists(guitarist);
+          setIsLoading(false);
+          setTotalGuitarists(guitarist.length);
+          // console.log(guitarist);
+          // setGuitarists((oldArray) => [...oldArray, guitarist]);
+        });
+      }
+    });
   }, []);
-
-  const fetchAllCards = async () => {
-    const data = await PostAPI.findAll();
-    setCards(data.data);
-    setIsLoading(false);
-    setTotalGuitarists(data.data.length);
-  };
 
   return (
     <div className="posts">
-      <Header cards={cards} totalGuitarists={totalGuitarists} />
+      <Header guitarists={guitarists} totalGuitarists={totalGuitarists} />
       <div className="control">
-        <Search cards={cards} setSearchTerm={setSearchTerm} />
+        <Search guitarists={guitarists} setSearchTerm={setSearchTerm} />
         <div className="radioSection">
-          <SwitchAlive cards={cards} setSelectedRadio={setSelectedRadio} />
+          <SwitchAlive
+            guitarists={guitarists}
+            setSelectedRadio={setSelectedRadio}
+          />
           <SwitchArea
-            cards={cards}
+            guitarists={guitarists}
             setSelectedAreaRadio={setSelectedAreaRadio}
           />
         </div>
@@ -52,36 +61,38 @@ const CardsPage = () => {
         {isLoading ? (
           <CardsContentLoader />
         ) : (
-          cards
-            .filter((card) => {
-              return (card.attributes.nom || card.attributes.prenom)
+          guitarists
+            .filter((guitarist) => {
+              return (guitarist.nom || guitarist.prenom)
                 .toLowerCase()
                 .includes(searchTerm.toLowerCase());
             })
-            .filter((card) => {
+            .filter((guitarist) => {
               if (selectedRadio === "dead") {
-                return card.attributes.mort;
+                return guitarist.mort;
               } else if (selectedRadio === "alive") {
-                return !card.attributes.mort;
+                return !guitarist.mort;
               } else {
-                return card;
+                return guitarist;
               }
             })
-            .filter((card) => {
+            .filter((guitarist) => {
               if (selectedAreaRadio === "Europe") {
-                return card.attributes.area === "Europe";
+                return guitarist.area === "Europe";
               } else if (selectedAreaRadio === "North America") {
-                return card.attributes.area === "North America";
+                return guitarist.area === "North America";
               } else {
-                return card;
+                return guitarist;
               }
             })
             .sort(function compare(a, b) {
-              if (a.attributes.nom < b.attributes.nom) return -1;
-              if (a.attributes.nom > b.attributes.nom) return 1;
+              if (a.nom < b.nom) return -1;
+              if (a.nom > b.nom) return 1;
               return 0;
             })
-            .map((card) => <CardPost card={card} key={card.id} />)
+            .map((guitarist) => (
+              <CardPost guitarist={guitarist} key={guitarist.id} />
+            ))
         )}
       </Grid>
       <ScrollToTop smooth={true} />

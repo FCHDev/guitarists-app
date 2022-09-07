@@ -10,7 +10,7 @@ import {
 const SwitchArea = ({ setSelectedAreaRadio }) => {
   const handleChange = (event) => {
     setSelectedAreaRadio(event.target.value);
-    console.log(event.target.value);
+    // console.log(event.target.value);
   };
 
   return (
