@@ -18,7 +18,7 @@
 .env.development.local
 .env.test.local
 .env.production.local
-src/pages/AdminPage.jsx
+/src/pages/AdminPage.jsx
 
 npm-debug.log*
 yarn-debug.log*
