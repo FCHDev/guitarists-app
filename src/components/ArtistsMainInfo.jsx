@@ -4,11 +4,11 @@ import { FaCross } from "react-icons/fa";
 
 const ArtistsMainInfo = ({ guitarist }) => {
   return (
-    <div>
+    <div className="main-infos">
       <Typography
         gutterBottom
         variant="h5"
-        component="div"
+        component="h1"
         style={{ fontFamily: "'JetBrains Mono', sans-serif" }}
       >
         <span style={{ paddingRight: "6px" }}>{guitarist.nationalite}</span>
@@ -16,10 +16,10 @@ const ArtistsMainInfo = ({ guitarist }) => {
           ? `${guitarist.nom}, ${guitarist.prenom}`
           : `${guitarist.nom}`}
       </Typography>
-      <Typography variant="body1" color="text.primary" pb={1}>
+      <Typography variant="body1" color="text.primary" pb={1} component="h2">
         Né à <strong>{guitarist.ville}</strong> en {guitarist.anneeNaissance}
       </Typography>
-      <Typography variant="body1" color="text.primary" pb={1}>
+      <Typography variant="body1" color="text.primary" pb={1} component="h3">
         {guitarist.anneeMort
           ? guitarist.anneeMort - guitarist.anneeNaissance
           : (

@@ -12,8 +12,9 @@ const Search = ({ setSearchTerm }) => {
     <div className="search">
       <TextField
         id="outlined-search"
-        label="Rechercher par nom"
+        label="Recherche par nom"
         type="search"
+        fullWidth={true}
         onChange={handleSearch}
       />
     </div>

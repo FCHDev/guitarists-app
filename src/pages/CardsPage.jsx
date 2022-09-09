@@ -28,7 +28,7 @@ const CardsPage = () => {
           setGuitarists(guitarist);
           setIsLoading(false);
           setTotalGuitarists(guitarist.length);
-          // console.log(guitarist);
+          // console.log(guitarist[16].imgURL);
           // setGuitarists((oldArray) => [...oldArray, guitarist]);
         });
       }
@@ -38,8 +38,8 @@ const CardsPage = () => {
   return (
     <div className="posts">
       <Header guitarists={guitarists} totalGuitarists={totalGuitarists} />
+      <Search guitarists={guitarists} setSearchTerm={setSearchTerm} />
       <div className="control">
-        <Search guitarists={guitarists} setSearchTerm={setSearchTerm} />
         <div className="radioSection">
           <SwitchAlive
             guitarists={guitarists}
@@ -95,6 +95,7 @@ const CardsPage = () => {
             ))
         )}
       </Grid>
+
       <ScrollToTop smooth={true} />
     </div>
   );
