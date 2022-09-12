@@ -1,18 +1,10 @@
 import React, { useEffect, useLayoutEffect, useState } from "react";
 import { useParams } from "react-router";
 import { Link } from "react-router-dom";
-// import Form from "../components/Form";
 
 import Grid from "@mui/material/Grid";
 import { Box, Skeleton } from "@mui/material";
 import Button from "@mui/material/Button";
-// import List from "@mui/material/List";
-// import ListItem from "@mui/material/ListItem";
-// import Divider from "@mui/material/Divider";
-// import ListItemText from "@mui/material/ListItemText";
-// import ListItemAvatar from "@mui/material/ListItemAvatar";
-// import Avatar from "@mui/material/Avatar";
-// import Typography from "@mui/material/Typography";
 import { AiFillCaretLeft } from "react-icons/ai";
 import { BsBoxArrowInRight } from "react-icons/bs";
 import { FaCross } from "react-icons/fa";
@@ -28,6 +20,7 @@ const CardPage = () => {
   const [prenom, setPrenom] = useState("");
   const [wikiURL, setWikiURL] = useState(null);
   const [imgURL, setImgURL] = useState("");
+  const [ytRef, setYtRef] = useState("");
   const [bio, setBio] = useState("");
   const [bio2, setBio2] = useState("");
   const [bio3, setBio3] = useState("");
@@ -48,6 +41,7 @@ const CardPage = () => {
           setPrenom(guitarist[id].prenom);
           setWikiURL(guitarist[id].wiki);
           setImgURL(guitarist[id].imgURL);
+          setYtRef(guitarist[id].ytRef);
           setBio(guitarist[id].bio);
           setBio2(guitarist[id].bio2);
           setBio3(guitarist[id].bio3);
@@ -56,7 +50,7 @@ const CardPage = () => {
           setBorn(guitarist[id].anneeNaissance);
           setDead(guitarist[id].anneeMort);
 
-          // console.log(guitarist[id]);
+          // console.log(guitarist[0].ytRef);
         });
       }
     });
@@ -135,6 +129,20 @@ const CardPage = () => {
               <span>Go to Wiki</span>
             </a>
           </p>
+
+          {/*INCRUSTE YOUTUBE*/}
+          {ytRef ? (
+            <iframe
+              width="100%"
+              height="500"
+              src={ytRef}
+              title="YouTube video player"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+          ) : (
+            ""
+          )}
         </Grid>
       </Grid>
 

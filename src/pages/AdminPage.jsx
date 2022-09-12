@@ -39,6 +39,10 @@ const AdminPage = () => {
       value: "🇮🇪",
       label: "🇮🇪",
     },
+    {
+      value: "🇦🇺",
+      label: "🇦🇺",
+    },
   ];
   // STATES
   const [anneeMort, setAnneeMort] = useState("");
@@ -56,6 +60,7 @@ const AdminPage = () => {
   const [prenom, setPrenom] = React.useState("");
   const [ville, setVille] = React.useState("");
   const [wiki, setWiki] = React.useState("");
+  const [ytRef, setYtRef] = React.useState("https://www.youtube.com/embed/");
 
   // HANDLES
   const handleAnneeMort = (event) => {
@@ -103,6 +108,9 @@ const AdminPage = () => {
   const handleWikiChange = (event) => {
     setWiki(event.target.value);
   };
+  const handleYtChange = (event) => {
+    setYtRef(event.target.value);
+  };
 
   // FONCTION POUR CREER NOUVEAU GUITARISTE
   const writeUserData = () => {
@@ -122,6 +130,7 @@ const AdminPage = () => {
       prenom,
       ville,
       wiki,
+      ytRef,
     });
     setAnneeMort("");
     setAnneeNaissance("");
@@ -138,6 +147,7 @@ const AdminPage = () => {
     setPrenom("");
     setVille("");
     setWiki("");
+    setYtRef("https://www.youtube.com/embed/");
   };
 
   const handleSubmit = (event) => {
@@ -342,6 +352,18 @@ const AdminPage = () => {
           type="search"
           fullWidth={true}
           onChange={handleImgURLChange}
+        />
+        <TextField
+          id="ytRef"
+          label="YouTube URL"
+          multiline
+          maxRows={4}
+          value={ytRef}
+          className="search"
+          margin="normal"
+          type="search"
+          fullWidth={true}
+          onChange={handleYtChange}
         />
         <div style={{ marginTop: "20px" }}>
           <Button
