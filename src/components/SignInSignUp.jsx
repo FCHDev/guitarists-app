@@ -1,6 +1,6 @@
 import * as React from "react";
 import { auth } from "../services/firebaseConfig";
-import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
