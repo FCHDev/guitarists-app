@@ -44,6 +44,7 @@ const AdminPage = () => {
       label: "🇦🇺",
     },
   ];
+
   // STATES
   const [anneeMort, setAnneeMort] = useState("");
   const [anneeNaissance, setAnneeNaissance] = useState("");

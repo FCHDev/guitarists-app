@@ -28,6 +28,7 @@ Composants MUI + Emotion + ReactIcons + CSS fait "maison" géré en SCSS (via SA
 
 
 
+
 ## Objectifs
 
 - Proposer une Single-Page-Application EN FRANÇAIS, permettant de trouver les principales informations concernant un(e) guitariste.

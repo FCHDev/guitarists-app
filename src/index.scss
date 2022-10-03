@@ -214,13 +214,13 @@ form {
 
 .admin {
   width: 70%;
-  height: auto;
+  min-height: 95vh;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
   margin: 20px;
-  padding: 20px;
+  padding: 10px;
   background: $card-details;
   border-radius: 10px;
   form {
@@ -229,6 +229,9 @@ form {
     align-items: center;
     flex-direction: column;
     width: 100%;
+  }
+  h1 {
+    margin-bottom: 5px;
   }
 }
 

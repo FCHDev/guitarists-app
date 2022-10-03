@@ -1,10 +1,12 @@
 import { Chip, createTheme, ThemeProvider } from "@mui/material";
+// import { Link } from "react-router-dom";
 
 const Header = ({ totalGuitarists }) => {
   const guitaristsTheme = createTheme({
     typography: {
       fontFamily: ["JetBrains Mono"].join(","),
       fontSize: 15,
+      textDecoration: "none",
     },
     palette: {
       primary: {
@@ -33,6 +35,7 @@ const Header = ({ totalGuitarists }) => {
           <Chip label={totalGuitarists} variant="outlined" />{" "}
           <p style={{ fontSize: "0.7em" }}>(on {dateDuJour})</p>
         </h4>
+        {/*<Link to="/login">Login</Link>*/}
       </div>
     </ThemeProvider>
   );

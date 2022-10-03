@@ -12,7 +12,6 @@ const configInfos = {
   databaseURL:
     "https://peoples-to-buy-default-rtdb.europe-west1.firebasedatabase.app/",
 };
-const appFirebase = initializeApp(configInfos);
-
+export const appFirebase = initializeApp(configInfos);
 export const db = getDatabase(appFirebase);
 export const auth = getAuth(appFirebase);
