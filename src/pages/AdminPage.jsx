@@ -9,6 +9,7 @@ import { MenuItem, Select } from "@mui/material";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { v4 } from "uuid";
 import { Link } from "react-router-dom";
+import ScrollToTop from "react-scroll-to-top";
 
 const AdminPage = ({ guitarists }) => {
   /// UPLOAD IMAGES
@@ -27,9 +28,8 @@ const AdminPage = ({ guitarists }) => {
               <img src={url} alt="guitarist" />
             </div>
           );
-          // console.log(srcUrl);
         });
-        alert("Image uploaded");
+        // alert("Image uploaded");
       })
       .catch((error) => {
         console.error(error);
@@ -174,16 +174,19 @@ const AdminPage = ({ guitarists }) => {
     setVille("");
     setWiki("");
     setYtRef("https://www.youtube.com/embed/");
+    setPicPreview("");
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
     writeUserData();
-    alert(nom + "a bien été ajouté !");
+    // REFRESH PAGE ET SCROLL AU TOP APRES SOUMISSION
+    window.scrollTo(0, 0);
+    alert(prenom + nom + " a bien été ajouté !");
   };
 
   return (
-    <div className="admin">
+    <div className="admin" id="top">
       <nav>
         <Link to="/">
           <Button
@@ -201,7 +204,7 @@ const AdminPage = ({ guitarists }) => {
           </Button>
         </Link>
       </nav>
-      <h1>Ajouter une photo</h1>
+      <h1 style={{ marginTop: "0.5em" }}>Ajouter une photo</h1>
       <div className="upload-section">
         <label htmlFor="inputTag">
           {" "}
@@ -222,7 +225,9 @@ const AdminPage = ({ guitarists }) => {
       </div>
       {picPreview}
 
-      <h1 style={{ marginTop: "2em" }}>Ajouter un guitariste</h1>
+      <div className="separation"></div>
+
+      <h1 style={{ marginTop: "0.5em" }}>Ajouter un guitariste</h1>
       <form>
         <TextField
           id="id"
@@ -440,6 +445,7 @@ const AdminPage = ({ guitarists }) => {
           </Button>
         </div>
       </form>
+      <ScrollToTop smooth={true} />
     </div>
   );
 };

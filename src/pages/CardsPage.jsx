@@ -64,11 +64,16 @@ const CardsPage = ({ guitarists, totalGuitarists, isLoading }) => {
                 return guitarist;
               }
             })
-            .sort(function compare(a, b) {
-              if (a.nom < b.nom) return -1;
-              if (a.nom > b.nom) return 1;
-              return 0;
+            //  ORDRE ALEATOIRE
+            .sort(function () {
+              return 0.5 - Math.random();
             })
+            //ORDRE ALPHABETIQUE
+            // .sort(function compare(a, b) {
+            //     if (a.nom < b.nom) return -1;
+            //     if (a.nom > b.nom) return 1;
+            //     return 0;
+            // })
             .map((guitarist) => (
               <CardPost guitarist={guitarist} key={guitarist.id} />
             ))
