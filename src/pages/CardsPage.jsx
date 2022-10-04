@@ -1,39 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import CardPost from "../components/CardPost";
 import CardsContentLoader from "../loaders/CardsContentLoader";
 import Header from "../components/Header";
 import Search from "../components/Search";
 import SwitchAlive from "../components/SwitchAlive";
 import SwitchArea from "../components/SwitchArea";
-import { ref, onValue } from "firebase/database";
-import { db } from "../services/firebaseConfig";
 
 import { Grid } from "@mui/material";
 import ScrollToTop from "react-scroll-to-top";
 
-const CardsPage = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [guitarists, setGuitarists] = useState([]);
+const CardsPage = ({ guitarists, totalGuitarists, isLoading }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRadio, setSelectedRadio] = useState("");
   const [selectedAreaRadio, setSelectedAreaRadio] = useState("");
-  const [totalGuitarists, setTotalGuitarists] = useState("");
-
-  useEffect(() => {
-    onValue(ref(db), (snapshot) => {
-      const data = snapshot.val();
-      if (data !== null) {
-        // eslint-disable-next-line
-        Object.values([data]).map((guitarist) => {
-          setGuitarists(guitarist);
-          setIsLoading(false);
-          setTotalGuitarists(guitarist.length);
-          // console.log(guitarist[16].imgURL);
-          // setGuitarists((oldArray) => [...oldArray, guitarist]);
-        });
-      }
-    });
-  }, []);
 
   return (
     <div className="posts">

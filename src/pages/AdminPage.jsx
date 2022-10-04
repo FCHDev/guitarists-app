@@ -2,11 +2,33 @@ import React, { useState } from "react";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import { AiOutlineUserAdd } from "react-icons/ai";
-import { ref, set } from "firebase/database";
-import { db } from "../services/firebaseConfig";
+import { set } from "firebase/database";
+import { refDb } from "../services/firebaseConfig";
+import { db, storage } from "../services/firebaseConfig";
 import { MenuItem, Select } from "@mui/material";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { v4 } from "uuid";
 
-const AdminPage = () => {
+const AdminPage = ({ guitarists }) => {
+  /// UPLOAD IMAGES
+  const [imageUpload, setImageUpload] = useState(null);
+
+  const uploadImage = () => {
+    if (imageUpload == null) return;
+    const imageRef = ref(storage, `images/${imageUpload.name + v4()}`);
+    uploadBytes(imageRef, imageUpload)
+      .then((snapshot) => {
+        getDownloadURL(snapshot.ref).then((url) => {
+          setImgURL(url);
+          // console.log(srcUrl);
+        });
+        alert("Image uploaded");
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
   /// CONST
   const optionArea = [
     {
@@ -53,8 +75,8 @@ const AdminPage = () => {
   const [bio2, setBio2] = useState("");
   const [bio3, setBio3] = useState("");
   const [bio4, setBio4] = useState("");
-  const [id, setId] = useState("");
-  const [imgURL, setImgURL] = useState("/uploads/");
+  const id = guitarists.length;
+  const [imgURL, setImgURL] = useState("");
   const [mort, setMort] = useState(false);
   const [nationalite, setNationalite] = useState("");
   const [nom, setNom] = React.useState("");
@@ -85,9 +107,6 @@ const AdminPage = () => {
   const handleBio4 = (event) => {
     setBio4(event.target.value);
   };
-  const handleIDChange = (event) => {
-    setId(event.target.value);
-  };
   const handleImgURLChange = (event) => {
     setImgURL(event.target.value);
   };
@@ -115,7 +134,7 @@ const AdminPage = () => {
 
   // FONCTION POUR CREER NOUVEAU GUITARISTE
   const writeUserData = () => {
-    set(ref(db, `/${id}`), {
+    set(refDb(db, `/${id}`), {
       anneeMort,
       anneeNaissance,
       area,
@@ -140,8 +159,7 @@ const AdminPage = () => {
     setBio2("");
     setBio3("");
     setBio4("");
-    setId("");
-    setImgURL("/uploads");
+    setImgURL("");
     setMort(false);
     setNationalite("");
     setNom("");
@@ -154,24 +172,43 @@ const AdminPage = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
     writeUserData();
+    alert(nom + "a bien été ajouté !");
   };
 
   return (
     <div className="admin">
-      <h1>Ajouter un guitariste</h1>
+      <h1>Ajouter une photo</h1>
+      <div className="upload-section">
+        <label htmlFor="inputTag">
+          {" "}
+          Select Image
+          <input
+            id="inputTag"
+            type="file"
+            onChange={(event) => {
+              setImageUpload(event.target.files[0]);
+            }}
+          />{" "}
+        </label>
+        <label htmlFor="inputButtonTag">
+          {" "}
+          Upload Image
+          <input id="inputButtonTag" type="button" onClick={uploadImage} />{" "}
+        </label>
+      </div>
+      <h1 style={{ marginTop: "2em" }}>Ajouter un guitariste</h1>
       <form>
         <TextField
-          required
           id="id"
           label="ID"
+          disabled={true}
           multiline
-          maxRows={4}
+          maxRows={1}
           value={id}
           className="search"
           margin="normal"
-          type="search"
+          type="text"
           fullWidth={true}
-          onChange={handleIDChange}
         />
         <TextField
           id="nom"
