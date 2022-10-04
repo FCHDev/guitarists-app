@@ -272,6 +272,16 @@ form {
   color: white;
 }
 
+.photo-preview {
+  max-width: 300px;
+  max-height: 300px;
+  border: 1px solid black;
+  img {
+    width: 100%;
+    height: auto;
+  }
+}
+
 .footer {
   width: 100%;
   height: 50px;

@@ -1,17 +1,19 @@
 import React, { useState } from "react";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import { AiOutlineUserAdd } from "react-icons/ai";
+import { AiFillCaretLeft, AiOutlineUserAdd } from "react-icons/ai";
 import { set } from "firebase/database";
 import { refDb } from "../services/firebaseConfig";
 import { db, storage } from "../services/firebaseConfig";
 import { MenuItem, Select } from "@mui/material";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { v4 } from "uuid";
+import { Link } from "react-router-dom";
 
 const AdminPage = ({ guitarists }) => {
   /// UPLOAD IMAGES
   const [imageUpload, setImageUpload] = useState(null);
+  const [picPreview, setPicPreview] = useState();
 
   const uploadImage = () => {
     if (imageUpload == null) return;
@@ -20,6 +22,11 @@ const AdminPage = ({ guitarists }) => {
       .then((snapshot) => {
         getDownloadURL(snapshot.ref).then((url) => {
           setImgURL(url);
+          setPicPreview(
+            <div className="photo-preview">
+              <img src={url} alt="guitarist" />
+            </div>
+          );
           // console.log(srcUrl);
         });
         alert("Image uploaded");
@@ -177,6 +184,23 @@ const AdminPage = ({ guitarists }) => {
 
   return (
     <div className="admin">
+      <nav>
+        <Link to="/">
+          <Button
+            variant="contained"
+            className="button-back"
+            style={{
+              position: "absolute",
+              top: "0",
+              left: "0",
+              marginLeft: "1em",
+            }}
+          >
+            <AiFillCaretLeft />
+            <span>Accueil</span>
+          </Button>
+        </Link>
+      </nav>
       <h1>Ajouter une photo</h1>
       <div className="upload-section">
         <label htmlFor="inputTag">
@@ -196,6 +220,8 @@ const AdminPage = ({ guitarists }) => {
           <input id="inputButtonTag" type="button" onClick={uploadImage} />{" "}
         </label>
       </div>
+      {picPreview}
+
       <h1 style={{ marginTop: "2em" }}>Ajouter un guitariste</h1>
       <form>
         <TextField
