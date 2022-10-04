@@ -52,6 +52,16 @@ code {
   }
 }
 
+.adm-btn {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: transparent;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
 .posts {
   display: flex;
   justify-content: center;

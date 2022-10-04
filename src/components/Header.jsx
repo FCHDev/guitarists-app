@@ -1,4 +1,5 @@
 import { Chip, createTheme, ThemeProvider } from "@mui/material";
+import { Link } from "react-router-dom";
 // import { Link } from "react-router-dom";
 
 const Header = ({ totalGuitarists }) => {
@@ -29,6 +30,9 @@ const Header = ({ totalGuitarists }) => {
   return (
     <ThemeProvider theme={guitaristsTheme}>
       <div className="header">
+        <Link to="/admin">
+          <button className="adm-btn">Admin</button>
+        </Link>
         <h1>guitarists_</h1>
         <h4>
           the database contains{" "}
