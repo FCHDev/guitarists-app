@@ -9,11 +9,11 @@ const ArtistsMainInfo = ({ guitarist }) => {
         gutterBottom
         variant="h5"
         component="h1"
-        style={{ fontFamily: "'JetBrains Mono', sans-serif" }}
+        style={{ fontFamily: "'JetBrains Mono', sans-serif", fontSize:"1.4em" }}
       >
-        <span style={{ paddingRight: "6px" }}>{guitarist.nationalite}</span>
+        <span style={{ paddingRight: "8px" }}>{guitarist.nationalite}</span>
         {guitarist.prenom
-          ? `${guitarist.nom}, ${guitarist.prenom}`
+          ? `${guitarist.prenom} ${guitarist.nom}`
           : `${guitarist.nom}`}
       </Typography>
       <Typography variant="body1" color="text.primary" pb={1} component="h2">

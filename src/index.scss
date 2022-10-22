@@ -1,3 +1,5 @@
+@import "~bootstrap/scss/bootstrap";
+
 //VARIABLES
 $titre-nom-guitarist: #ffb703;
 $background: #30638e;
@@ -42,27 +44,47 @@ code {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  margin-bottom: 10px;
 
   h1 {
     font-size: 2.5em;
+    font-weight: bold;
   }
 
   h4 {
     // compteur de guitaristes
     color: $titre-nom-guitarist;
+    margin: 0;
   }
 }
 
-.adm-btn {
+.adm-btn,
+.login-btn, {
+  min-width: 4em;
   position: absolute;
   top: 0;
   left: 0;
-  color: transparent;
-  background: transparent;
-  border: none;
+  color: white;
+  background-color: transparent;
+  border: 1px solid white;
+  border-radius: 7px;
   cursor: pointer;
+  padding: 3px;
+  margin: 1em;
 }
+.logout-btn {
+  min-width: 4em;
+  position: absolute;
+  top: 3em;
+  left: 0;
+  color: white;
+  background-color: transparent;
+  border: 1px solid white;
+  border-radius: 7px;
+  cursor: pointer;
+  padding: 3px;
+  margin: 1em;
+}
+
 
 .posts {
   display: flex;
@@ -135,6 +157,7 @@ a {
   margin: 7px;
   background: $card-background !important;
   border-radius: 10px !important;
+  border: none;
 
   h1 {
     text-align: start;
@@ -157,12 +180,16 @@ a {
 .cardPageImg {
   padding-top: 10px;
 }
+.cardPageImg img {
+  border: none;
+}
 
 .cardBio {
   color: #ffffff;
 
   p {
     margin-top: 7px;
+    line-height:1.1rem;
   }
 }
 
@@ -170,17 +197,22 @@ a {
   margin-bottom: 8px;
   color: $titre-nom-guitarist;
   font-family: "JetBrains Mono", sans-serif;
+  font-size: 2rem;
+  font-weight: bold;
 }
 
 .cardBioInfoH4 {
   margin-bottom: 8px;
   font-weight: normal;
+  font-size: 1rem;
   color: #ffffff;
 }
 
 .cardBioH4 {
   margin-top: 14px;
   color: #ffffff;
+  font-weight: bold;
+  font-size: 1.2rem;
 }
 
 .cardImg {
@@ -250,6 +282,41 @@ form {
 
   h1 {
     margin-bottom: 5px;
+  }
+}
+
+.admin-login-container {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.admin-login {
+  width: 40em;
+  min-height: 50vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 10px;
+  background: $card-details;
+  border-radius: 10px;
+
+  form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+    height: 300px;
+  }
+
+  h1 {
+    margin-bottom: 5px;
+    color: #30638e;
   }
 }
 
@@ -325,6 +392,11 @@ form {
     width: 45%;
   }
   .footer {
+    display: none;
+  }
+  .adm-btn,
+  .login-btn,
+  .logout-btn {
     display: none;
   }
 }

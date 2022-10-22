@@ -1,96 +1,101 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
+import {auth} from "../services/firebaseConfig";
 
-import { signInWithEmailAndPassword, getAuth } from "firebase/auth";
+import {signInWithEmailAndPassword, onAuthStateChanged} from "firebase/auth";
 
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import { AiOutlineUserAdd } from "react-icons/ai";
-import { appFirebase } from "../services/firebaseConfig";
+import {AiOutlineUserAdd} from "react-icons/ai";
+import {Link} from "react-router-dom";
 
-const Login = () => {
-  // const [connectedUser, setConnectedUser] = useState("");
-  const [credentials, setCredentials] = useState({
-    login: "",
-    password: "",
-  });
-
-  // onAuthStateChanged(auth, (currentUser) => {
-  //   setConnectedUser(currentUser);
-  // });
-
-  const login = () => {
-    const auth = getAuth(appFirebase);
-    signInWithEmailAndPassword(auth, credentials.login, credentials.password)
-      .then((userCredential) => {
-        // Signed in
-        // const user = userCredential.user;
-        // ...
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        console.log(errorCode);
-        const errorMessage = error.message;
-        console.log(errorMessage);
-      });
-  };
-
-  const handleChange = ({ currentTarget }) => {
-    const { value, name } = currentTarget;
-    setCredentials({
-      ...credentials,
-      [name]: value,
+const Login = ({connectedUser, setConnectedUser, setIsConnected}) => {
+    const [credentials, setCredentials] = useState({
+        login: "",
+        password: "",
     });
-  };
+    const [homeLink, setHomeLink] = useState("/");
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    login();
-  };
+    // Fonction qui permet d'enregistrer l'utilisateur authentifié en cours
+    onAuthStateChanged(auth, (currentUser) => {
+        setConnectedUser(currentUser);
+    });
 
-  return (
-    <div className="admin">
-      <h1>Connexion</h1>
-      <form>
-        <TextField
-          required
-          id="login"
-          name="login"
-          label="Email"
-          maxRows={1}
-          // value={loginEmail}
-          className="search"
-          margin="normal"
-          type="email"
-          fullWidth={true}
-          onChange={handleChange}
-        />
-        <TextField
-          id="password"
-          label="Password"
-          name="password"
-          maxRows={1}
-          // value={loginPassword}
-          className="search"
-          margin="normal"
-          type="password"
-          fullWidth={true}
-          onChange={handleChange}
-        />
+    const login = async () => {
+        try {
+            const user = await signInWithEmailAndPassword(
+                auth,
+                credentials.login,
+                credentials.password
+            );
+            console.log(user);
+        } catch (error) {
+            console.log(error.message);
+        }
+    };
 
-        <div style={{ marginTop: "20px" }}>
-          <Button
-            variant="contained"
-            size="large"
-            endIcon={<AiOutlineUserAdd />}
-            onClick={handleSubmit}
-          >
-            Login
-          </Button>
+
+    const handleSubmit = () => {
+        login();
+        setIsConnected(true)
+        connectedUser ? setHomeLink("/") : setHomeLink("");
+    };
+
+    const handleChange = ({currentTarget}) => {
+        const {value, name} = currentTarget;
+        setCredentials({
+            ...credentials,
+            [name]: value,
+        });
+    };
+
+    // console.log(credentials);
+
+    return (
+        <div className="admin-login-container">
+            <div className="admin-login">
+                <h1>Connexion</h1>
+                <form>
+                    <TextField
+                        required
+                        id="login"
+                        name="login"
+                        label="Email"
+                        maxRows={1}
+                        className="search"
+                        margin="normal"
+                        type="email"
+                        fullWidth={true}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        id="password"
+                        label="Password"
+                        name="password"
+                        maxRows={1}
+                        className="search"
+                        margin="normal"
+                        type="password"
+                        fullWidth={true}
+                        onChange={handleChange}
+                    />
+
+                    <div style={{marginTop: "20px"}}>
+                        <Link to={homeLink}>
+                            <Button
+                                variant="contained"
+                                size="large"
+                                endIcon={<AiOutlineUserAdd/>}
+                                onClick={handleSubmit}
+                            >
+                                Login
+                            </Button>
+                        </Link>
+                    </div>
+                    <p>{connectedUser ? connectedUser.email : ""}</p>
+                </form>
+            </div>
         </div>
-        <p>{credentials?.login}</p>
-      </form>
-    </div>
-  );
+    );
 };
 
 export default Login;
