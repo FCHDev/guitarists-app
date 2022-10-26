@@ -61,6 +61,11 @@ const CardsPage = ({
                                 .toLowerCase()
                                 .includes(searchTerm.toLowerCase());
                         })
+                        // .filter((guitarist) => {
+                        //     return (guitarist.prenom)
+                        //         .toLowerCase()
+                        //         .includes(searchTerm.toLowerCase());
+                        // })
                         .filter((guitarist) => {
                             if (selectedRadio === "dead") {
                                 return guitarist.mort;

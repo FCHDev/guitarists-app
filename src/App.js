@@ -1,13 +1,14 @@
- import {useEffect, useState} from "react";
+import {useEffect, useState, lazy, Suspense} from "react";
 import {Routes, Route} from "react-router-dom";
-import CardsPage from "./pages/CardsPage";
-import CardPage from "./pages/CardPage";
-import AdminPage from "./pages/AdminPage";
-import Login from "./pages/Login";
 import {db} from "./services/firebaseConfig";
 
 import Container from "@mui/material/Container";
 import {onValue, ref} from "firebase/database";
+
+const CardsPage = lazy(() => import("./pages/CardsPage"))
+const CardPage = lazy(() => import("./pages/CardPage"))
+const AdminPage = lazy(() => import("./pages/AdminPage"))
+const Login = lazy(() => import("./pages/Login"))
 
 function App() {
     const [isLoading, setIsLoading] = useState(true);
@@ -33,39 +34,41 @@ function App() {
     return (
         <Container>
             <div className="App">
-                <Routes>
-                    <Route
-                        path="/"
-                        exact
-                        element={
-                            <CardsPage
-                                guitarists={guitarists}
-                                totalGuitarists={totalGuitarists}
-                                isLoading={isLoading}
-                                connectedUser={connectedUser}
-                                setConnectedUser={setConnectedUser}
-                                isConnected={isConnected}
-                                setIsConnected={setIsConnected}
-                            />
-                        }
-                    />
-                    <Route path="card/:id" element={<CardPage/>}/>
-                    <Route
-                        path="/admin"
-                        element={<AdminPage guitarists={guitarists}/>}
-                    />
-                    <Route
-                        path="/login"
-                        element={
-                            <Login
-                                connectedUser={connectedUser}
-                                setConnectedUser={setConnectedUser}
-                                isConnected={isConnected}
-                                setIsConnected={setIsConnected}
-                            />
-                        }
-                    />
-                </Routes>
+                <Suspense>
+                    <Routes>
+                        <Route
+                            path="/"
+                            exact
+                            element={
+                                <CardsPage
+                                    guitarists={guitarists}
+                                    totalGuitarists={totalGuitarists}
+                                    isLoading={isLoading}
+                                    connectedUser={connectedUser}
+                                    setConnectedUser={setConnectedUser}
+                                    isConnected={isConnected}
+                                    setIsConnected={setIsConnected}
+                                />
+                            }
+                        />
+                        <Route path="card/:id" element={<CardPage/>}/>
+                        <Route
+                            path="/admin"
+                            element={<AdminPage guitarists={guitarists}/>}
+                        />
+                        <Route
+                            path="/login"
+                            element={
+                                <Login
+                                    connectedUser={connectedUser}
+                                    setConnectedUser={setConnectedUser}
+                                    isConnected={isConnected}
+                                    setIsConnected={setIsConnected}
+                                />
+                            }
+                        />
+                    </Routes>
+                </Suspense>
             </div>
         </Container>
     );
