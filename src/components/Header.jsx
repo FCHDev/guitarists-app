@@ -53,7 +53,7 @@ const Header = ({totalGuitarists, setConnectedUser, isConnected, setIsConnected}
         </Link>
     );
     const adminButton = (
-        <Link to="/admin" target="_blank" rel="noopener noreferrer">
+        <Link to="/admin">
             <button className="adm-btn">Admin</button>
         </Link>
     );
