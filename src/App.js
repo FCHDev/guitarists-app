@@ -1,9 +1,9 @@
 import {useEffect, useState, lazy, Suspense} from "react";
 import {Routes, Route} from "react-router-dom";
-import {db} from "./services/firebaseConfig";
-
 import Container from "@mui/material/Container";
+
 import {onValue, ref} from "firebase/database";
+import {db} from "./services/firebaseConfig";
 
 const CardsPage = lazy(() => import("./pages/CardsPage"))
 const CardPage = lazy(() => import("./pages/CardPage"))
@@ -26,9 +26,10 @@ function App() {
                     setGuitarists(guitarist);
                     setIsLoading(false);
                     setTotalGuitarists(guitarist.length);
+                    console.log("🔥🔥🔥🔥 FETCHING FIREBASE 🔥🔥🔥🔥")
                 });
             }
-        });
+        } ,{onlyOnce: true});
     }, []);
 
     return (

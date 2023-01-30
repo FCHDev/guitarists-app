@@ -25,7 +25,7 @@ const AdminPage = ({ guitarists }) => {
           setImgURL(url);
           setPicPreview(
             <div className="photo-preview">
-              <img src={url} alt="guitarist" />
+              <img src={url} alt={nom + " " + prenom} />
             </div>
           );
         });

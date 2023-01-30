@@ -22,6 +22,8 @@ const CardsPage = ({
     const [selectedRadio, setSelectedRadio] = useState("");
     const [selectedAreaRadio, setSelectedAreaRadio] = useState("");
 
+    console.log("CardsPage rendered")
+
     return (
         <div className="posts">
             <Header
@@ -57,15 +59,10 @@ const CardsPage = ({
                 ) : (
                     guitarists
                         .filter((guitarist) => {
-                            return (guitarist.nom || guitarist.prenom)
+                            return (guitarist.nom + " " + guitarist.prenom)
                                 .toLowerCase()
                                 .includes(searchTerm.toLowerCase());
                         })
-                        // .filter((guitarist) => {
-                        //     return (guitarist.prenom)
-                        //         .toLowerCase()
-                        //         .includes(searchTerm.toLowerCase());
-                        // })
                         .filter((guitarist) => {
                             if (selectedRadio === "dead") {
                                 return guitarist.mort;
