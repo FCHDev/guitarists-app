@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import { AiFillCaretLeft, AiOutlineUserAdd } from "react-icons/ai";
-import { set } from "firebase/database";
+import { set, push } from "firebase/database";
 import { refDb } from "../services/firebaseConfig";
 import { db, storage } from "../services/firebaseConfig";
 import { MenuItem, Select } from "@mui/material";
@@ -11,7 +11,7 @@ import { v4 } from "uuid";
 import { Link } from "react-router-dom";
 import ScrollToTop from "react-scroll-to-top";
 
-const AdminPage = ({ guitarists }) => {
+const AdminPage = () => {
   /// UPLOAD IMAGES
   const [imageUpload, setImageUpload] = useState(null);
   const [picPreview, setPicPreview] = useState();
@@ -72,6 +72,10 @@ const AdminPage = ({ guitarists }) => {
       value: "🇦🇺",
       label: "🇦🇺",
     },
+    {
+      value: "🇵🇱",
+      label: "🇵🇱",
+    },
   ];
 
   // STATES
@@ -82,7 +86,6 @@ const AdminPage = ({ guitarists }) => {
   const [bio2, setBio2] = useState("");
   const [bio3, setBio3] = useState("");
   const [bio4, setBio4] = useState("");
-  const id = guitarists.length;
   const [imgURL, setImgURL] = useState("");
   const [mort, setMort] = useState(false);
   const [nationalite, setNationalite] = useState("");
@@ -141,7 +144,11 @@ const AdminPage = ({ guitarists }) => {
 
   // FONCTION POUR CREER NOUVEAU GUITARISTE
   const writeUserData = () => {
-    set(refDb(db, `/${id}`), {
+    // Clé unique générée par Firebase plutôt que guitarists.length, qui pouvait
+    // créer des collisions (deux ajouts simultanés, ou ajout après suppression).
+    const newGuitaristRef = push(refDb(db));
+    const newId = newGuitaristRef.key;
+    set(newGuitaristRef, {
       anneeMort,
       anneeNaissance,
       area,
@@ -149,7 +156,7 @@ const AdminPage = ({ guitarists }) => {
       bio2,
       bio3,
       bio4,
-      id,
+      id: newId,
       imgURL,
       mort,
       nationalite,
@@ -229,18 +236,6 @@ const AdminPage = ({ guitarists }) => {
 
       <h1 style={{ marginTop: "0.5em" }}>Ajouter un guitariste</h1>
       <form>
-        <TextField
-          id="id"
-          label="ID"
-          disabled={true}
-          multiline
-          maxRows={1}
-          value={id}
-          className="search"
-          margin="normal"
-          type="text"
-          fullWidth={true}
-        />
         <TextField
           id="nom"
           label="Nom"
