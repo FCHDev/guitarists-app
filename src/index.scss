@@ -537,12 +537,18 @@ a {
   gap: 1.5rem;
 }
 
+// 50/50 (et non 42/58 comme au premier essai) : maintenant que la photo est
+// carrée (1:1) et non 4:5, une colonne plus étroite la rendait trop petite
+// par rapport au texte sur les bios longues (photo qui s'arrêtait bien avant
+// la fin du texte). Voir aussi -webkit-line-clamp sur .cardBio--clamped,
+// ajusté en conséquence pour rester à peu près à la même hauteur que la
+// photo une fois agrandie.
 @media screen and (min-width: 600px) {
   .cardPanelTop {
     flex-direction: row;
   }
   .cardPanelPhoto {
-    flex: 0 0 42%;
+    flex: 0 0 50%;
   }
   .cardPanelText {
     flex: 1;
@@ -577,8 +583,8 @@ a {
 .cardBio--clamped {
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 10;
-  line-clamp: 10;
+  -webkit-line-clamp: 9;
+  line-clamp: 9;
   overflow: hidden;
 
   &::after {
@@ -642,13 +648,15 @@ a {
 
 // Recadrée en 4:5 (object-fit: cover) plutôt qu'à la hauteur naturelle de
 // chaque photo : avant, une photo très verticale ou très large déséquilibrait
-// le poids visuel entre la colonne photo et la colonne texte. En 4:5, la
-// photo pèse toujours la même chose quelle que soit sa source.
+// le poids visuel entre la colonne photo et la colonne texte. Recadrée en
+// carré (1:1, comme partout ailleurs sur le site) plutôt qu'à la hauteur
+// naturelle de chaque photo, sauf le médaillon rond de l'accueil qui garde
+// son propre traitement (voir .card-avatar).
 .cardImg {
   border-radius: 14px;
   border: 1px solid $border-subtle;
   width: 100%;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 1 / 1;
   object-fit: cover;
   display: block;
 }
@@ -818,9 +826,10 @@ form {
   max-width: 22em;
 }
 
+// Recadré en carré (1:1) comme le reste du site (fiche détaillée...), pour
+// que l'aperçu dans l'admin corresponde à ce qui s'affichera réellement.
 .photo-preview {
   max-width: 300px;
-  max-height: 300px;
   margin: 1.25em auto 0;
   border: 1px solid $border-subtle;
   border-radius: 10px;
@@ -828,7 +837,8 @@ form {
 
   img {
     width: 100%;
-    height: auto;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
     display: block;
   }
 }
