@@ -1,3 +1,13 @@
+// Ces deux couleurs sont normalement calculées par Bootstrap via tint-color()/
+// shade-color() (donc mix()). Avec les versions récentes de Dart Sass, mix()
+// produit un rgb() en pourcentages ("rgb(4.58%, 38.8%, 89.3%)") que le
+// minifieur CSS de react-scripts (postcss-svgo) ne sait pas parser une fois
+// intégré dans une icône SVG, ce qui fait planter le build de production.
+// On fixe ici les valeurs hexadécimales exactes que Bootstrap calcule
+// normalement par défaut : aucun changement visuel, juste un contournement.
+$input-focus-border-color: #86b7fe;
+$accordion-button-active-color: #0c63e4;
+
 @import "~bootstrap/scss/bootstrap";
 
 //VARIABLES
