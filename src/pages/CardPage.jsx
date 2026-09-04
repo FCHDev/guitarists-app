@@ -8,13 +8,10 @@ import Button from "@mui/material/Button";
 import { AiFillCaretLeft } from "react-icons/ai";
 import { BsBoxArrowInRight } from "react-icons/bs";
 import { FaCross } from "react-icons/fa";
-import { onValue, ref } from "firebase/database";
-import { db } from "../services/firebaseConfig";
+import { fetchGuitaristById } from "../services/guitaristsApi";
 
 const CardPage = () => {
   const { id } = useParams();
-  // eslint-disable-next-line
-  const [guitarist, setGuitarist] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [nom, setNom] = useState("");
   const [prenom, setPrenom] = useState("");
@@ -30,30 +27,32 @@ const CardPage = () => {
   const [dead, setDead] = useState(null);
 
   useEffect(() => {
-    onValue(ref(db), (snapshot) => {
-      const data = snapshot.val();
-      if (data !== null) {
-        // eslint-disable-next-line
-        Object.values([data]).map((guitarist) => {
-          setGuitarist(data[id]);
-          setIsLoading(true);
-          setNom(guitarist[id].nom);
-          setPrenom(guitarist[id].prenom);
-          setWikiURL(guitarist[id].wiki);
-          setImgURL(guitarist[id].imgURL);
-          setYtRef(guitarist[id].ytRef);
-          setBio(guitarist[id].bio);
-          setBio2(guitarist[id].bio2);
-          setBio3(guitarist[id].bio3);
-          setBio4(guitarist[id].bio4);
-          setCity(guitarist[id].ville);
-          setBorn(guitarist[id].anneeNaissance);
-          setDead(guitarist[id].anneeMort);
+    let isMounted = true;
 
-          // console.log(guitarist[0].ytRef);
-        });
-      }
-    });
+    fetchGuitaristById(id)
+      .then((guitarist) => {
+        if (!isMounted) return;
+        setNom(guitarist.nom);
+        setPrenom(guitarist.prenom);
+        setWikiURL(guitarist.wiki);
+        setImgURL(guitarist.imgURL);
+        setYtRef(guitarist.ytRef);
+        setBio(guitarist.bio);
+        setBio2(guitarist.bio2);
+        setBio3(guitarist.bio3);
+        setBio4(guitarist.bio4);
+        setCity(guitarist.ville);
+        setBorn(guitarist.anneeNaissance);
+        setDead(guitarist.anneeMort);
+        setIsLoading(true);
+      })
+      .catch((error) => {
+        console.error("Erreur de chargement du guitariste :", error);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, [id]);
 
   useLayoutEffect(() => {

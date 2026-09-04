@@ -3,9 +3,8 @@ import {Routes, Route, Navigate} from "react-router-dom";
 import Container from "@mui/material/Container";
 import {ThemeProvider} from "@mui/material/styles";
 
-import {onValue, ref} from "firebase/database";
-import {onAuthStateChanged} from "firebase/auth";
-import {db, auth} from "./services/firebaseConfig";
+import {supabase} from "./services/supabaseClient";
+import {fetchGuitarists, subscribeToGuitarists} from "./services/guitaristsApi";
 import getTheme from "./theme";
 import ThemeToggle from "./components/ThemeToggle";
 
@@ -16,7 +15,7 @@ const Login = lazy(() => import("./pages/Login"))
 
 const THEME_STORAGE_KEY = "themeMode";
 
-// Bloque l'accès à une route tant que l'état d'authentification Firebase n'a pas
+// Bloque l'accès à une route tant que l'état d'authentification Supabase n'a pas
 // encore été vérifié, puis redirige vers /login si l'utilisateur n'est pas connecté.
 const RequireAuth = ({authChecked, isConnected, children}) => {
     if (!authChecked) {
@@ -63,33 +62,50 @@ function App() {
         setThemeMode((previousMode) => (previousMode === "dark" ? "light" : "dark"));
     };
 
-    // Récupération des guitaristes, en écoute continue (pas seulement au
-    // chargement) : la liste se met donc à jour automatiquement après un
-    // ajout, une modification ou une suppression depuis l'admin, sans avoir
-    // besoin de recharger la page.
+    // Récupération des guitaristes, puis écoute en continu des changements
+    // (ajout/modification/suppression depuis l'admin) via Supabase Realtime :
+    // la liste se met donc à jour automatiquement partout, sans recharger
+    // la page (même comportement qu'avec l'écoute Firebase continue avant).
     useEffect(() => {
-        return onValue(ref(db), (snapshot) => {
-            const data = snapshot.val();
-            if (data !== null) {
-                // On force la conversion en tableau : selon les clés présentes
-                // (index numériques suivis ou non, clés générées par push...),
-                // Firebase peut renvoyer un objet ou un tableau.
-                const guitaristsArray = Object.values(data);
-                setGuitarists(guitaristsArray);
+        let isMounted = true;
+
+        const loadGuitarists = async () => {
+            try {
+                const data = await fetchGuitarists();
+                if (!isMounted) return;
+                setGuitarists(data);
                 setIsLoading(false);
-                setTotalGuitarists(guitaristsArray.length);
+                setTotalGuitarists(data.length);
+            } catch (error) {
+                console.error("Erreur de chargement des guitaristes :", error);
             }
-        });
+        };
+
+        loadGuitarists();
+        const unsubscribe = subscribeToGuitarists(loadGuitarists);
+
+        return () => {
+            isMounted = false;
+            unsubscribe();
+        };
     }, []);
 
-    // Suivi de l'état de connexion Firebase : source unique de vérité pour
+    // Suivi de l'état de connexion Supabase : source unique de vérité pour
     // isConnected/connectedUser, utilisée aussi pour protéger la route /admin.
     useEffect(() => {
-        return onAuthStateChanged(auth, (user) => {
-            setConnectedUser(user);
-            setIsConnected(!!user);
+        supabase.auth.getSession().then(({data: {session}}) => {
+            setConnectedUser(session?.user ?? null);
+            setIsConnected(!!session);
             setAuthChecked(true);
         });
+
+        const {data: {subscription}} = supabase.auth.onAuthStateChange((_event, session) => {
+            setConnectedUser(session?.user ?? null);
+            setIsConnected(!!session);
+            setAuthChecked(true);
+        });
+
+        return () => subscription.unsubscribe();
     }, []);
 
     return (

@@ -1,7 +1,6 @@
 import {Chip} from "@mui/material";
 import {Link} from "react-router-dom";
-import {signOut} from "firebase/auth";
-import {auth} from "../services/firebaseConfig";
+import {supabase} from "../services/supabaseClient";
 
 
 const Header = ({totalGuitarists, setConnectedUser, isConnected, setIsConnected}) => {
@@ -17,7 +16,7 @@ const Header = ({totalGuitarists, setConnectedUser, isConnected, setIsConnected}
 
     // Logout function
     const logout = async () => {
-        await signOut(auth);
+        await supabase.auth.signOut();
     };
     const handleLogout = () => {
         logout()

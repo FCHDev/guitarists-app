@@ -1,6 +1,5 @@
 import React, {useState} from "react";
-import {auth} from "../services/firebaseConfig";
-import {signInWithEmailAndPassword} from "firebase/auth";
+import {supabase} from "../services/supabaseClient";
 import {useNavigate} from "react-router-dom";
 
 import TextField from "@mui/material/TextField";
@@ -8,9 +7,9 @@ import Button from "@mui/material/Button";
 import {AiOutlineUserAdd} from "react-icons/ai";
 
 // L'état de connexion (isConnected/connectedUser) est désormais géré une seule
-// fois, dans App.js, via onAuthStateChanged. Ce composant se contente de
-// soumettre les identifiants et d'attendre la réponse de Firebase avant de
-// considérer que la connexion a réussi.
+// fois, dans App.js, via supabase.auth.onAuthStateChange. Ce composant se
+// contente de soumettre les identifiants et d'attendre la réponse de
+// Supabase avant de considérer que la connexion a réussi.
 const Login = () => {
     const [credentials, setCredentials] = useState({
         login: "",
@@ -33,8 +32,12 @@ const Login = () => {
         setErrorMessage("");
         setIsSubmitting(true);
         try {
-            await signInWithEmailAndPassword(auth, credentials.login, credentials.password);
-            // Connexion réussie : App.js met isConnected à jour via onAuthStateChanged.
+            const {error} = await supabase.auth.signInWithPassword({
+                email: credentials.login,
+                password: credentials.password,
+            });
+            if (error) throw error;
+            // Connexion réussie : App.js met isConnected à jour via onAuthStateChange.
             navigate("/");
         } catch (error) {
             setErrorMessage("Email ou mot de passe incorrect.");

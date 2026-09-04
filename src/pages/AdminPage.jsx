@@ -3,9 +3,11 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Autocomplete from "@mui/material/Autocomplete";
 import { AiFillCaretLeft, AiOutlineUserAdd, AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
-import { set, push, remove } from "firebase/database";
-import { refDb } from "../services/firebaseConfig";
-import { db } from "../services/firebaseConfig";
+import {
+  createGuitarist,
+  updateGuitarist,
+  deleteGuitarist as removeGuitarist,
+} from "../services/guitaristsApi";
 import { MenuItem, Select } from "@mui/material";
 import { Link } from "react-router-dom";
 import ScrollToTop from "react-scroll-to-top";
@@ -214,7 +216,7 @@ const AdminPage = ({ guitarists = [] }) => {
   };
 
   // FONCTION POUR CREER OU METTRE A JOUR UN GUITARISTE
-  const writeUserData = (resolvedImgURL) => {
+  const writeUserData = async (resolvedImgURL) => {
     const fields = {
       anneeMort,
       anneeNaissance,
@@ -234,15 +236,12 @@ const AdminPage = ({ guitarists = [] }) => {
     };
 
     if (editingId) {
-      // Modification d'un guitariste existant : on réécrit le même nœud,
-      // sous la même clé.
-      set(refDb(db, String(editingId)), { ...fields, id: editingId });
+      // Modification d'un guitariste existant : on réécrit la même ligne.
+      await updateGuitarist(editingId, fields);
     } else {
-      // Nouveau guitariste : clé unique générée par Firebase plutôt que
-      // guitarists.length, qui pouvait créer des collisions (deux ajouts
-      // simultanés, ou ajout après suppression).
-      const newGuitaristRef = push(refDb(db));
-      set(newGuitaristRef, { ...fields, id: newGuitaristRef.key });
+      // Nouveau guitariste : id généré automatiquement par Postgres
+      // (identity), plus besoin de le calculer nous-mêmes.
+      await createGuitarist(fields);
     }
 
     resetForm();
@@ -258,7 +257,7 @@ const AdminPage = ({ guitarists = [] }) => {
     setIsSaving(true);
     try {
       const resolvedImgURL = await resolveImgURL();
-      writeUserData(resolvedImgURL);
+      await writeUserData(resolvedImgURL);
       // REFRESH PAGE ET SCROLL AU TOP APRES SOUMISSION
       window.scrollTo(0, 0);
       alert(`${label} a bien été ${wasEditing ? "modifié" : "ajouté"} !`);
@@ -277,17 +276,25 @@ const AdminPage = ({ guitarists = [] }) => {
 
   // Supprime définitivement le guitariste actuellement chargé dans le
   // formulaire. Demande une confirmation avant, l'action est irréversible.
-  const deleteGuitarist = () => {
+  const deleteGuitarist = async () => {
     if (!editingId) return;
     const label = `${prenom} ${nom}`.trim();
     const confirmed = window.confirm(
       `Supprimer définitivement ${label} ? Cette action est irréversible.`
     );
     if (!confirmed) return;
-    remove(refDb(db, String(editingId)));
-    resetForm();
-    window.scrollTo(0, 0);
-    alert(`${label} a bien été supprimé.`);
+    setIsSaving(true);
+    try {
+      await removeGuitarist(editingId);
+      resetForm();
+      window.scrollTo(0, 0);
+      alert(`${label} a bien été supprimé.`);
+    } catch (error) {
+      console.error(error);
+      alert("Erreur lors de la suppression : " + error.message);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const selectedGuitarist =
@@ -355,7 +362,7 @@ const AdminPage = ({ guitarists = [] }) => {
               onClick={deleteGuitarist}
               disabled={isSaving}
             >
-              Supprimer
+              {isSaving ? "..." : "Supprimer"}
             </Button>
             <Button
               variant="outlined"
