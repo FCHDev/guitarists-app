@@ -4,14 +4,13 @@ import { BrowserRouter } from "react-router-dom";
 import "./index.scss";
 import App from "./App";
 import Footer from "./components/Footer";
-// import { UserContextProvider } from "./context/userContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <BrowserRouter>
-    {/*<UserContextProvider>*/}
-    <App />
-    {/*</UserContextProvider>*/}
-    <Footer />
-  </BrowserRouter>
+  <React.StrictMode>
+    <BrowserRouter>
+      <App />
+      <Footer />
+    </BrowserRouter>
+  </React.StrictMode>
 );
