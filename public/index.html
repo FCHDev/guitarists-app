@@ -6,6 +6,11 @@
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/apple-touch-icon.png"/>
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <!-- Toutes les photos et les données viennent de ces deux origines :
+         établir la connexion (DNS + TLS) avant même que le JS n'en ait
+         besoin fait gagner un peu de temps sur le premier chargement. -->
+    <link rel="preconnect" href="https://res.cloudinary.com"/>
+    <link rel="preconnect" href="https://nvfirnihwqpcnynovcjj.supabase.co"/>
     <link
             href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&family=Vidaloka&display=swap"
             rel="stylesheet"
