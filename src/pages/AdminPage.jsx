@@ -2,7 +2,13 @@ import React, { useState } from "react";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Autocomplete from "@mui/material/Autocomplete";
-import { AiFillCaretLeft, AiOutlineUserAdd, AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
+import {
+  AiFillCaretLeft,
+  AiOutlineUserAdd,
+  AiOutlineEdit,
+  AiOutlineDelete,
+  AiOutlineCloudUpload,
+} from "react-icons/ai";
 import {
   createGuitarist,
   updateGuitarist,
@@ -379,8 +385,8 @@ const AdminPage = ({ guitarists = [] }) => {
 
       <h1 style={{ marginTop: "0.5em" }}>Photo</h1>
       <div className="upload-section">
-        <label htmlFor="inputTag">
-          {" "}
+        <AiOutlineCloudUpload className="upload-icon" />
+        <label htmlFor="inputTag" className="upload-label">
           Choisir une image
           <input
             id="inputTag"
@@ -397,9 +403,9 @@ const AdminPage = ({ guitarists = [] }) => {
                 );
               }
             }}
-          />{" "}
+          />
         </label>
-        <p style={{ fontSize: "0.9em", opacity: 0.8 }}>
+        <p className="upload-hint">
           La photo est envoyée automatiquement lors de l'enregistrement, plus
           besoin de bouton séparé.
         </p>

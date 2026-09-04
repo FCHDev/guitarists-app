@@ -484,42 +484,68 @@ form {
   }
 }
 
+// Zone d'envoi de photo façon "dropzone" : bordure en pointillés (affordance
+// classique d'upload, même sans glisser-déposer), fond légèrement en retrait
+// par rapport à la carte .admin ($bg-page est toujours un ton différent de
+// $bg-card, dans les deux thèmes), espacement généreux plutôt que la boîte
+// figée et tassée d'avant.
 .upload-section {
-  height: 10em;
-  width: 20em;
-  margin: 1em auto;
+  width: 100%;
+  max-width: 26em;
+  margin: 1.5em auto;
+  padding: 2.5em 2em;
   display: flex;
-  justify-content: space-evenly;
-  align-items: center;
   flex-direction: column;
-  border-radius: 12px;
-  background-color: #2d5b7f; // bleu marine Ocean Breeze, fixe dans les deux thèmes
+  align-items: center;
+  gap: 0.85em;
+  border: 2px dashed $border-subtle;
+  border-radius: 16px;
+  background-color: $bg-page;
+  transition: border-color 0.2s ease;
+
+  &:hover {
+    border-color: $accent;
+  }
+}
+
+.upload-icon {
+  font-size: 2.6em;
+  color: $accent;
 }
 
 .upload-section input {
   display: none;
 }
 
-.upload-section label {
-  padding: 0.5em;
-  width: 8em;
-  text-align: center;
+// Même langage visuel que les autres actions principales du site
+// (.button-back...) : pastille pleine en ambre, texte dans la couleur de
+// fond pour un bon contraste dans les deux thèmes.
+.upload-label {
+  padding: 0.7em 1.75em;
   border-radius: 999px;
-  background-color: $text-primary;
+  background-color: $accent;
   color: $bg-page;
   cursor: pointer;
   font-weight: 600;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: $accent-hover;
+  }
 }
 
-.upload-section label:hover {
-  background-color: $accent;
-  color: $bg-page;
+.upload-hint {
+  margin: 0;
+  font-size: 0.85em;
+  color: $text-muted;
+  text-align: center;
+  max-width: 22em;
 }
 
 .photo-preview {
   max-width: 300px;
   max-height: 300px;
+  margin: 1.25em auto 0;
   border: 1px solid $border-subtle;
   border-radius: 10px;
   overflow: hidden;
