@@ -103,7 +103,11 @@ const CardPage = () => {
                 className="cardPageImg"
               >
                 {isLoaded ? (
-                  <img src={cloudinaryDetailImage(imgURL)} alt={nom} className="cardImg" />
+                  <img
+                    src={cloudinaryDetailImage(imgURL)}
+                    alt={nom}
+                    className={`cardImg${dead ? " cardImg--deceased" : ""}`}
+                  />
                 ) : (
                   <Skeleton variant="rect" width="100%" height={400} />
                 )}

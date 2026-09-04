@@ -1,40 +1,30 @@
 import React from "react";
-import Typography from "@mui/material/Typography";
-import { FaCross } from "react-icons/fa";
+import {Cross} from "lucide-react";
 
+// Nom + informations essentielles affichés sur la carte de la page
+// d'accueil. Un seul <h3> par carte plutôt qu'un <h1> : la page n'a qu'un
+// seul vrai titre de premier niveau (le "guitarists_" du header), pas une
+// centaine. Lieu de naissance et âge sur deux lignes distinctes plutôt que
+// séparés par un point, à la demande de François.
 const ArtistsMainInfo = ({ guitarist }) => {
+  const age = guitarist.anneeMort
+    ? guitarist.anneeMort - guitarist.anneeNaissance
+    : new Date().getFullYear() - guitarist.anneeNaissance;
+
   return (
-    <div className="main-infos">
-      <Typography
-        gutterBottom
-        variant="h5"
-        component="h1"
-        style={{ fontFamily: "'JetBrains Mono', sans-serif", fontSize:"1.4em" }}
-      >
-        <span style={{ paddingRight: "8px" }}>{guitarist.nationalite}</span>
-        {guitarist.prenom
-          ? `${guitarist.prenom} ${guitarist.nom}`
-          : `${guitarist.nom}`}
-      </Typography>
-      <Typography variant="body1" color="text.primary" pb={1} component="h2">
-        Né à <strong>{guitarist.ville}</strong> en {guitarist.anneeNaissance}
-      </Typography>
-      <Typography variant="body1" color="text.primary" pb={1} component="h3">
-        {guitarist.anneeMort
-          ? guitarist.anneeMort - guitarist.anneeNaissance
-          : (
-              new Date().getFullYear() - guitarist.anneeNaissance
-            ).toString()}{" "}
-        ans
-        <span>
-          {guitarist.mort === true ? (
-            <FaCross style={{ marginLeft: "3px", paddingTop: "3px" }} />
-          ) : (
-            ""
-          )}
-        </span>
-      </Typography>
-    </div>
+    <>
+      <h3 className="card-name">
+        {guitarist.prenom ? `${guitarist.prenom} ${guitarist.nom}` : guitarist.nom}
+      </h3>
+      <p className="card-meta">
+        <span className="card-flag">{guitarist.nationalite}</span>
+        Né à {guitarist.ville}
+      </p>
+      <p className="card-meta card-meta-age">
+        {age} ans
+        {guitarist.mort ? <Cross size={11} className="card-meta-icon" /> : null}
+      </p>
+    </>
   );
 };
 

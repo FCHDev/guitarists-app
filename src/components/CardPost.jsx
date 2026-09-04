@@ -1,15 +1,15 @@
 import * as React from "react";
 import {Link} from "react-router-dom";
-
-import Card from "@mui/material/Card";
-import CardActions from "@mui/material/CardActions";
-import CardContent from "@mui/material/CardContent";
-import CardMedia from "@mui/material/CardMedia";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
+import {motion} from "framer-motion";
+import {ArrowRight} from "lucide-react";
 import ArtistsMainInfo from "./ArtistsMainInfo";
-import {Fade} from "@mui/material";
 import {cloudinaryCardThumbnail} from "../utils/cloudinaryUrl";
+
+// Lien "motion" : la carte est un <Link> react-router, avec en plus les
+// props d'animation de Framer Motion (apparition au scroll, léger effet au
+// survol). motion.create() enveloppe un composant existant sans changer ce
+// qu'il rend (remplace l'ancienne API motion(Link), dépréciée).
+const MotionCard = motion.create(Link);
 
 // Mémoïsé : ce composant est rendu ~100 fois sur la page d'accueil, et un
 // re-rendu du parent (ex. bascule du thème clair/sombre) ne doit pas
@@ -19,39 +19,33 @@ import {cloudinaryCardThumbnail} from "../utils/cloudinaryUrl";
 // recréer de nouveaux à chaque rendu (filter/sort/map ne clonent pas).
 const CardPost = React.memo(function CardPost({guitarist}) {
     return (
-        <Fade
-            in={true}
-            appear={true}
-            unmountOnExit
-            timeout={{enter: 1500, exit: 1000}}
+        <MotionCard
+            to={`/card/${guitarist.id}`}
+            className="card"
+            initial={{opacity: 0, y: 16}}
+            whileInView={{opacity: 1, y: 0}}
+            viewport={{once: true, margin: "-60px"}}
+            transition={{duration: 0.35, ease: "easeOut"}}
+            whileHover={{y: -6}}
         >
-            <Link to={`/card/${guitarist.id}`}>
-                <Card
-                    sx={{maxWidth: 365}}
-                    className="card"
-                    // style={{ margin: "10px", background: "#e5e5e5" }}
-                >
-                    <CardMedia
-                        component="img"
-                        height="350"
-                        image={guitarist.imgURL !== null ? cloudinaryCardThumbnail(guitarist.imgURL) : "Pas d'image"}
-                        alt={guitarist.nom}
-                        loading="lazy"
-                    />
-                    <CardContent>
-                        <ArtistsMainInfo guitarist={guitarist}/>
-                        <Typography variant="body2" component="h3">
-                            {(guitarist.bio || "").substring(0, 80) + "..."}
-                        </Typography>
-                    </CardContent>
-                    <CardActions className="savoir-plus">
-                        <Button className="savoir-plus" size="small">
-                            En savoir plus
-                        </Button>
-                    </CardActions>
-                </Card>
-            </Link>
-        </Fade>
+            <div className="card-avatar-ring">
+                <img
+                    className={`card-avatar${guitarist.mort ? " card-avatar--deceased" : ""}`}
+                    src={guitarist.imgURL !== null ? cloudinaryCardThumbnail(guitarist.imgURL) : "Pas d'image"}
+                    alt={guitarist.nom}
+                    loading="lazy"
+                />
+            </div>
+            <ArtistsMainInfo guitarist={guitarist}/>
+            <p className="card-bio">{guitarist.bio || ""}</p>
+            {/* Toute la carte est déjà un lien : ceci est un indicateur
+                visuel, pas un second contrôle interactif imbriqué dans le
+                <a> (un <button> dans un <a> n'est pas un HTML valide). */}
+            <span className="card-cta">
+                En savoir plus
+                <ArrowRight size={14} aria-hidden="true" />
+            </span>
+        </MotionCard>
     );
 });
 

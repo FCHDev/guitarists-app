@@ -2,6 +2,7 @@ import {useEffect, useState, lazy, Suspense} from "react";
 import {Routes, Route, Navigate} from "react-router-dom";
 import Container from "@mui/material/Container";
 import {ThemeProvider} from "@mui/material/styles";
+import {MotionConfig} from "framer-motion";
 
 import {supabase} from "./services/supabaseClient";
 import {fetchGuitarists, subscribeToGuitarists} from "./services/guitaristsApi";
@@ -111,6 +112,10 @@ function App() {
     return (
         <ThemeProvider theme={getTheme(themeMode)}>
             <Container>
+                {/* reducedMotion="user" : respecte automatiquement la préférence
+                    système "réduire les animations" pour toutes les animations
+                    Framer Motion de l'app (cartes de la page d'accueil...). */}
+                <MotionConfig reducedMotion="user">
                 <div className="App">
                     <ThemeToggle mode={themeMode} onToggle={toggleTheme}/>
                     <Suspense>
@@ -143,6 +148,7 @@ function App() {
                         </Routes>
                     </Suspense>
                 </div>
+                </MotionConfig>
             </Container>
         </ThemeProvider>
     );

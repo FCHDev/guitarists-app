@@ -5,7 +5,6 @@ import Header from "../components/Header";
 import Search from "../components/Search";
 import FilterChips from "../components/FilterChips";
 
-import {Grid} from "@mui/material";
 import ScrollToTop from "react-scroll-to-top";
 
 const CardsPage = ({
@@ -64,13 +63,7 @@ const CardsPage = ({
                     ]}
                 />
             </div>
-            <Grid
-                container
-                spacing={0}
-                alignItems="center"
-                justifyContent="center"
-                style={{minHeight: "100vh", width: "90vw"}}
-            >
+            <div className="cards-grid">
                 {isLoading ? (
                     <CardsContentLoader/>
                 ) : (
@@ -113,7 +106,7 @@ const CardsPage = ({
                             <CardPost guitarist={guitarist} key={guitarist.id}/>
                         ))
                 )}
-            </Grid>
+            </div>
 
             <ScrollToTop smooth={true}/>
         </div>
