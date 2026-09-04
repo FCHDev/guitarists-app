@@ -243,7 +243,7 @@ const AdminPage = ({ guitarists = [] }) => {
     if (editingId) {
       // Modification d'un guitariste existant : on réécrit le même nœud,
       // sous la même clé.
-      set(refDb(db, editingId), { ...fields, id: editingId });
+      set(refDb(db, String(editingId)), { ...fields, id: editingId });
     } else {
       // Nouveau guitariste : clé unique générée par Firebase plutôt que
       // guitarists.length, qui pouvait créer des collisions (deux ajouts
