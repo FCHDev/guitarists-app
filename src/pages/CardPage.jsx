@@ -73,7 +73,7 @@ const CardPage = () => {
 
       {/*GUITARIST DETAILS PART*/}
       <Grid container spacing={2} height="auto">
-        <Grid item sm={4}>
+        <Grid item xs={12} sm={4}>
           <Box
             display="flex"
             justifyContent="center"
@@ -87,7 +87,7 @@ const CardPage = () => {
             )}
           </Box>
         </Grid>
-        <Grid item sm={8} alignItems="center" justifyContent="center">
+        <Grid item xs={12} sm={8} alignItems="center" justifyContent="center">
           {isLoading ? (
             <h1 className="cardBioH1">
               {prenom} {nom}
@@ -132,14 +132,32 @@ const CardPage = () => {
 
           {/*INCRUSTE YOUTUBE*/}
           {ytRef ? (
-            <iframe
-              width="100%"
-              height="500"
-              src={ytRef}
-              title="YouTube video player"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
+            // Conteneur en ratio 16:9 (padding-top en %) plutôt qu'une
+            // hauteur fixe en pixels : la vidéo garde ses proportions à
+            // n'importe quelle largeur d'écran, y compris mobile.
+            <div
+              style={{
+                position: "relative",
+                width: "100%",
+                paddingTop: "56.25%",
+                marginTop: "1rem",
+              }}
+            >
+              <iframe
+                src={ytRef}
+                title="YouTube video player"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  border: "none",
+                }}
+              ></iframe>
+            </div>
           ) : (
             ""
           )}
