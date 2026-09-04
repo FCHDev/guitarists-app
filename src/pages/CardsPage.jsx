@@ -22,8 +22,6 @@ const CardsPage = ({
     const [selectedRadio, setSelectedRadio] = useState("");
     const [selectedAreaRadio, setSelectedAreaRadio] = useState("");
 
-    console.log("CardsPage rendered")
-
     return (
         <div className="posts">
             <Header
