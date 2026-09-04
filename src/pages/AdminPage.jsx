@@ -16,40 +16,33 @@ const CLOUDINARY_CLOUD_NAME = "gho9ewh4";
 const CLOUDINARY_UPLOAD_PRESET = "guitaristes";
 
 const AdminPage = ({ guitarists = [] }) => {
-  /// UPLOAD IMAGES
+  /// PHOTO
+  // imageUpload : fichier choisi mais pas encore envoyé à Cloudinary (l'envoi
+  // se fait automatiquement au moment d'enregistrer le guitariste, plus besoin
+  // d'un bouton "Upload Image" séparé).
   const [imageUpload, setImageUpload] = useState(null);
   const [picPreview, setPicPreview] = useState();
-  const [isUploading, setIsUploading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const uploadImage = async () => {
-    if (imageUpload == null) return;
-
+  // Envoie le fichier choisi vers Cloudinary si un nouveau a été sélectionné,
+  // et renvoie l'URL à enregistrer. Si aucun nouveau fichier n'a été
+  // sélectionné, renvoie simplement l'URL déjà en place (imgURL).
+  const resolveImgURL = async () => {
+    if (imageUpload == null) {
+      return imgURL;
+    }
     const formData = new FormData();
     formData.append("file", imageUpload);
     formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-
-    setIsUploading(true);
-    try {
-      const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-        { method: "POST", body: formData }
-      );
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error?.message || "Échec de l'upload");
-      }
-      setImgURL(data.secure_url);
-      setPicPreview(
-        <div className="photo-preview">
-          <img src={data.secure_url} alt={nom + " " + prenom} />
-        </div>
-      );
-    } catch (error) {
-      console.error(error);
-      alert("Erreur lors de l'upload de l'image : " + error.message);
-    } finally {
-      setIsUploading(false);
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+      { method: "POST", body: formData }
+    );
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error?.message || "Échec de l'upload de l'image");
     }
+    return data.secure_url;
   };
 
   /// CONST
@@ -221,7 +214,7 @@ const AdminPage = ({ guitarists = [] }) => {
   };
 
   // FONCTION POUR CREER OU METTRE A JOUR UN GUITARISTE
-  const writeUserData = () => {
+  const writeUserData = (resolvedImgURL) => {
     const fields = {
       anneeMort,
       anneeNaissance,
@@ -230,7 +223,7 @@ const AdminPage = ({ guitarists = [] }) => {
       bio2,
       bio3,
       bio4,
-      imgURL,
+      imgURL: resolvedImgURL,
       mort,
       nationalite,
       nom,
@@ -257,14 +250,24 @@ const AdminPage = ({ guitarists = [] }) => {
 
   // Logique de sauvegarde partagée entre le bouton du formulaire (en bas de
   // page) et le bouton rapide à côté du champ de recherche (pratique pour ne
-  // pas avoir à redescendre jusqu'en bas à chaque modification).
-  const saveGuitarist = () => {
+  // pas avoir à redescendre jusqu'en bas à chaque modification). Envoie
+  // d'abord la photo sur Cloudinary si besoin, puis écrit la fiche.
+  const saveGuitarist = async () => {
     const wasEditing = Boolean(editingId);
     const label = `${prenom} ${nom}`.trim();
-    writeUserData();
-    // REFRESH PAGE ET SCROLL AU TOP APRES SOUMISSION
-    window.scrollTo(0, 0);
-    alert(`${label} a bien été ${wasEditing ? "modifié" : "ajouté"} !`);
+    setIsSaving(true);
+    try {
+      const resolvedImgURL = await resolveImgURL();
+      writeUserData(resolvedImgURL);
+      // REFRESH PAGE ET SCROLL AU TOP APRES SOUMISSION
+      window.scrollTo(0, 0);
+      alert(`${label} a bien été ${wasEditing ? "modifié" : "ajouté"} !`);
+    } catch (error) {
+      console.error(error);
+      alert("Erreur lors de l'enregistrement : " + error.message);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleSubmit = (event) => {
@@ -340,8 +343,9 @@ const AdminPage = ({ guitarists = [] }) => {
               size="large"
               endIcon={<AiOutlineEdit />}
               onClick={saveGuitarist}
+              disabled={isSaving}
             >
-              Modifier
+              {isSaving ? "Enregistrement..." : "Modifier"}
             </Button>
             <Button
               variant="outlined"
@@ -349,6 +353,7 @@ const AdminPage = ({ guitarists = [] }) => {
               size="large"
               endIcon={<AiOutlineDelete />}
               onClick={deleteGuitarist}
+              disabled={isSaving}
             >
               Supprimer
             </Button>
@@ -356,6 +361,7 @@ const AdminPage = ({ guitarists = [] }) => {
               variant="outlined"
               size="large"
               onClick={() => loadGuitaristIntoForm(null)}
+              disabled={isSaving}
             >
               Annuler
             </Button>
@@ -365,31 +371,32 @@ const AdminPage = ({ guitarists = [] }) => {
 
       <div className="separation"></div>
 
-      <h1 style={{ marginTop: "0.5em" }}>
-        {editingId ? "Modifier la photo" : "Ajouter une photo"}
-      </h1>
+      <h1 style={{ marginTop: "0.5em" }}>Photo</h1>
       <div className="upload-section">
         <label htmlFor="inputTag">
           {" "}
-          Select Image
+          Choisir une image
           <input
             id="inputTag"
             type="file"
+            accept="image/*"
             onChange={(event) => {
-              setImageUpload(event.target.files[0]);
+              const file = event.target.files[0] || null;
+              setImageUpload(file);
+              if (file) {
+                setPicPreview(
+                  <div className="photo-preview">
+                    <img src={URL.createObjectURL(file)} alt={`${prenom} ${nom}`} />
+                  </div>
+                );
+              }
             }}
           />{" "}
         </label>
-        <label htmlFor="inputButtonTag">
-          {" "}
-          {isUploading ? "Envoi en cours..." : "Upload Image"}
-          <input
-            id="inputButtonTag"
-            type="button"
-            onClick={uploadImage}
-            disabled={isUploading}
-          />{" "}
-        </label>
+        <p style={{ fontSize: "0.9em", opacity: 0.8 }}>
+          La photo est envoyée automatiquement lors de l'enregistrement, plus
+          besoin de bouton séparé.
+        </p>
       </div>
       {picPreview}
 
@@ -600,14 +607,16 @@ const AdminPage = ({ guitarists = [] }) => {
             size="large"
             endIcon={editingId ? <AiOutlineEdit /> : <AiOutlineUserAdd />}
             onClick={handleSubmit}
+            disabled={isSaving}
           >
-            {editingId ? "Modifier" : "Ajouter"}
+            {isSaving ? "Enregistrement..." : editingId ? "Modifier" : "Ajouter"}
           </Button>
           {editingId && (
             <Button
               variant="outlined"
               size="large"
               onClick={() => loadGuitaristIntoForm(null)}
+              disabled={isSaving}
             >
               Annuler la modification
             </Button>

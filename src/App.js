@@ -31,7 +31,10 @@ function App() {
     const [isConnected, setIsConnected] = useState(false);
     const [authChecked, setAuthChecked] = useState(false);
 
-    // Récupération des guitaristes (une seule fois au chargement)
+    // Récupération des guitaristes, en écoute continue (pas seulement au
+    // chargement) : la liste se met donc à jour automatiquement après un
+    // ajout, une modification ou une suppression depuis l'admin, sans avoir
+    // besoin de recharger la page.
     useEffect(() => {
         return onValue(ref(db), (snapshot) => {
             const data = snapshot.val();
@@ -44,7 +47,7 @@ function App() {
                 setIsLoading(false);
                 setTotalGuitarists(guitaristsArray.length);
             }
-        }, {onlyOnce: true});
+        });
     }, []);
 
     // Suivi de l'état de connexion Firebase : source unique de vérité pour
