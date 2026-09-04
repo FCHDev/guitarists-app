@@ -275,6 +275,37 @@ a {
   }
 }
 
+.cardPageWrapper {
+  min-height: 100vh;
+  padding-bottom: 2rem;
+}
+
+// Sur desktop, le contenu de la fiche (photo + bio) est centré verticalement
+// dans la fenêtre plutôt que collé en haut, comme demandé par François.
+// Sur mobile on garde un affichage naturel en haut (pas de centrage), pour
+// éviter un grand espace vide au-dessus sur les fiches avec peu de texte.
+@media screen and (min-width: 900px) {
+  .cardPageContent {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+  }
+  .cardPageContent > .MuiGrid-container {
+    width: 100%;
+  }
+}
+
+.cardPageNotFound {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+  color: $text-primary;
+}
+
 .cardPageImg {
   padding-top: 10px;
 }

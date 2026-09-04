@@ -29,11 +29,12 @@ export default function CardPost({guitarist}) {
                         height="350"
                         image={guitarist.imgURL !== null ? guitarist.imgURL : "Pas d'image"}
                         alt={guitarist.nom}
+                        loading="lazy"
                     />
                     <CardContent>
                         <ArtistsMainInfo guitarist={guitarist}/>
                         <Typography variant="body2" component="h3">
-                            {guitarist.bio.substring(0, 80) + "..."}
+                            {(guitarist.bio || "").substring(0, 80) + "..."}
                         </Typography>
                     </CardContent>
                     <CardActions className="savoir-plus">
