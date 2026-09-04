@@ -11,7 +11,13 @@ import ArtistsMainInfo from "./ArtistsMainInfo";
 import {Fade} from "@mui/material";
 import {cloudinaryCardThumbnail} from "../utils/cloudinaryUrl";
 
-export default function CardPost({guitarist}) {
+// Mémoïsé : ce composant est rendu ~100 fois sur la page d'accueil, et un
+// re-rendu du parent (ex. bascule du thème clair/sombre) ne doit pas
+// refaire le rendu de chaque carte si son guitariste n'a pas changé.
+// Comparaison par défaut de React.memo (référence des props) suffisante ici :
+// CardsPage passe directement les objets guitarist de la liste, sans en
+// recréer de nouveaux à chaque rendu (filter/sort/map ne clonent pas).
+const CardPost = React.memo(function CardPost({guitarist}) {
     return (
         <Fade
             in={true}
@@ -47,4 +53,6 @@ export default function CardPost({guitarist}) {
             </Link>
         </Fade>
     );
-}
+});
+
+export default CardPost;
