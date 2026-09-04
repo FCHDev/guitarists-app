@@ -6,12 +6,15 @@ import {ThemeProvider} from "@mui/material/styles";
 import {onValue, ref} from "firebase/database";
 import {onAuthStateChanged} from "firebase/auth";
 import {db, auth} from "./services/firebaseConfig";
-import theme from "./theme";
+import getTheme from "./theme";
+import ThemeToggle from "./components/ThemeToggle";
 
 const CardsPage = lazy(() => import("./pages/CardsPage"))
 const CardPage = lazy(() => import("./pages/CardPage"))
 const AdminPage = lazy(() => import("./pages/AdminPage"))
 const Login = lazy(() => import("./pages/Login"))
+
+const THEME_STORAGE_KEY = "themeMode";
 
 // Bloque l'accès à une route tant que l'état d'authentification Firebase n'a pas
 // encore été vérifié, puis redirige vers /login si l'utilisateur n'est pas connecté.
@@ -32,6 +35,33 @@ function App() {
     const [connectedUser, setConnectedUser] = useState(null);
     const [isConnected, setIsConnected] = useState(false);
     const [authChecked, setAuthChecked] = useState(false);
+
+    // Thème sombre/clair, mémorisé d'une visite à l'autre (localStorage).
+    // Sombre par défaut si rien n'est enregistré.
+    const [themeMode, setThemeMode] = useState(() => {
+        try {
+            return localStorage.getItem(THEME_STORAGE_KEY) || "dark";
+        } catch {
+            return "dark";
+        }
+    });
+
+    // L'attribut data-theme sur <html> pilote les variables CSS (index.scss)
+    // utilisées par les classes "maison" ; le thème MUI (ci-dessous) pilote
+    // les composants Material UI. Les deux doivent rester synchronisés.
+    useEffect(() => {
+        document.documentElement.setAttribute("data-theme", themeMode);
+        try {
+            localStorage.setItem(THEME_STORAGE_KEY, themeMode);
+        } catch {
+            // localStorage indisponible (navigation privée...) : pas grave,
+            // le thème reviendra juste à sa valeur par défaut au rechargement.
+        }
+    }, [themeMode]);
+
+    const toggleTheme = () => {
+        setThemeMode((previousMode) => (previousMode === "dark" ? "light" : "dark"));
+    };
 
     // Récupération des guitaristes, en écoute continue (pas seulement au
     // chargement) : la liste se met donc à jour automatiquement après un
@@ -63,9 +93,10 @@ function App() {
     }, []);
 
     return (
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={getTheme(themeMode)}>
             <Container>
                 <div className="App">
+                    <ThemeToggle mode={themeMode} onToggle={toggleTheme}/>
                     <Suspense>
                         <Routes>
                             <Route
