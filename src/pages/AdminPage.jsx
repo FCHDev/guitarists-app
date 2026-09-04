@@ -325,7 +325,7 @@ const AdminPage = ({ guitarists = [] }) => {
       </nav>
 
       <h1 style={{ marginTop: "0.5em" }}>Modifier un guitariste existant</h1>
-      <div style={{ display: "flex", alignItems: "flex-start", gap: "1em" }}>
+      <div style={{ display: "flex", alignItems: "flex-start", gap: "1em", width: "100%" }}>
         <Autocomplete
           options={sortedGuitarists}
           getOptionLabel={(option) => `${option.prenom || ""} ${option.nom || ""}`.trim()}
