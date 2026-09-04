@@ -135,7 +135,7 @@ function App() {
                                     />
                                 }
                             />
-                            <Route path="card/:id" element={<CardPage/>}/>
+                            <Route path="card/:id" element={<CardPage isConnected={isConnected}/>}/>
                             <Route
                                 path="/admin"
                                 element={

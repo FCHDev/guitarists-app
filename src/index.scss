@@ -407,6 +407,42 @@ a {
   color: $accent-hover;
 }
 
+// Le wrapper existe uniquement pour porter le bouton "Modifier" en dehors du
+// <Link> de la carte (impossible d'imbriquer un <a> dans un autre <a> en
+// HTML) : il reprend exactement le gabarit de .card pour ne rien changer à
+// la grille (voir .cards-grid).
+.card-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+}
+
+// Discret (petit, semi-transparent, coin de la carte) mais visible : ne
+// s'affiche que pour un admin connecté (voir CardPost.jsx), mène directement
+// sur la fiche admin avec ce guitariste déjà sélectionné.
+.card-edit-btn {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.7rem;
+  width: 1.9rem;
+  height: 1.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(16, 26, 34, 0.55);
+  border: 1px solid $border-subtle;
+  color: $text-primary;
+  backdrop-filter: blur(2px);
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    background: $accent;
+    color: $bg-page;
+    border-color: $accent;
+  }
+}
+
 .button-back {
   margin-top: 10px !important;
   background: $accent !important;
@@ -424,18 +460,18 @@ a {
   padding-bottom: 2rem;
 }
 
-// Sur desktop, le contenu de la fiche (photo + bio) est centré verticalement
-// dans la fenêtre plutôt que collé en haut, comme demandé par François.
-// Sur mobile on garde un affichage naturel en haut (pas de centrage), pour
-// éviter un grand espace vide au-dessus sur les fiches avec peu de texte.
+// Sur desktop, le contenu de la fiche (le panneau ci-dessous) est centré
+// verticalement ET horizontalement dans la fenêtre plutôt que collé en haut,
+// comme demandé par François. Sur mobile on garde un affichage naturel en
+// haut (pas de centrage), pour éviter un grand espace vide au-dessus sur les
+// fiches avec peu de texte.
 @media screen and (min-width: 900px) {
   .cardPageContent {
     min-height: 100vh;
     display: flex;
+    flex-direction: column;
+    justify-content: center;
     align-items: center;
-  }
-  .cardPageContent > .MuiGrid-container {
-    width: 100%;
   }
 }
 
@@ -450,14 +486,77 @@ a {
   color: $text-primary;
 }
 
-.cardPageImg {
-  padding-top: 10px;
+// Panneau "carte" reprenant l'habillage des cartes de l'accueil (fond, coins
+// arrondis, bordure, ombre) : avant, la photo et le texte flottaient
+// directement sur le fond de la page, sans cadre. La vidéo est placée en
+// pleine largeur SOUS le bloc photo+texte (voir .cardVideoWrap) plutôt que
+// dans la colonne de texte : les deux colonnes du haut restent à hauteur
+// égale, sans grand vide sous la photo sur les fiches avec une longue bio.
+.cardPagePanel {
+  position: relative;
+  width: 92%;
+  max-width: 900px;
+  margin: 0 auto;
+  background: $bg-card;
+  border: 1px solid $border-subtle;
+  border-radius: 20px;
+  padding: 1.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
-.cardPageImg img {
-  border: none;
+
+// Même traitement (discret, coin, admin uniquement) que .card-edit-btn sur
+// les vignettes de l'accueil, pour rester cohérent.
+.cardPanelEditBtn {
+  position: absolute;
+  top: 1.1rem;
+  right: 1.1rem;
+  width: 2.1rem;
+  height: 2.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(16, 26, 34, 0.55);
+  border: 1px solid $border-subtle;
+  color: $text-primary;
+  backdrop-filter: blur(2px);
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    background: $accent;
+    color: $bg-page;
+    border-color: $accent;
+  }
+}
+
+// Empilé (photo au-dessus du texte) sur mobile, côte à côte à partir de
+// 600px (le même seuil que l'ancien breakpoint sm de MUI Grid).
+.cardPanelTop {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+@media screen and (min-width: 600px) {
+  .cardPanelTop {
+    flex-direction: row;
+  }
+  .cardPanelPhoto {
+    flex: 0 0 42%;
+  }
+  .cardPanelText {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.cardPanelText {
+  display: flex;
+  flex-direction: column;
 }
 
 .cardBio {
+  position: relative;
   color: $text-primary;
   font-family: $font-display;
 
@@ -465,6 +564,52 @@ a {
     margin-top: 10px;
     font-size: 0.95rem;
     line-height: 1.6;
+  }
+}
+
+// Certaines bios tiennent naturellement en quelques lignes (ex. David
+// Gilmour), d'autres en ont 2-3 fois plus (plusieurs paragraphes) : sans
+// limite, les fiches avaient des hauteurs très inégales. On clampe
+// l'affichage initial à peu près à la hauteur d'une bio "normale", avec un
+// léger dégradé en bas pour indiquer la coupure, et un bouton "Lire la
+// suite" (affiché seulement si le texte dépasse vraiment cette hauteur,
+// voir bioOverflows dans CardPage.jsx) pour accéder au texte complet.
+.cardBio--clamped {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 10;
+  line-clamp: 10;
+  overflow: hidden;
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2.4rem;
+    background: linear-gradient(to bottom, rgba(41, 63, 78, 0), $bg-card);
+    pointer-events: none;
+  }
+}
+
+.cardBioToggle {
+  display: inline-block;
+  margin-top: 0.6rem;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: $font-display;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: $accent;
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: $accent-hover;
   }
 }
 
@@ -495,69 +640,51 @@ a {
   font-size: 1.2rem;
 }
 
+// Recadrée en 4:5 (object-fit: cover) plutôt qu'à la hauteur naturelle de
+// chaque photo : avant, une photo très verticale ou très large déséquilibrait
+// le poids visuel entre la colonne photo et la colonne texte. En 4:5, la
+// photo pèse toujours la même chose quelle que soit sa source.
 .cardImg {
   border-radius: 14px;
   border: 1px solid $border-subtle;
   width: 100%;
-  max-width: 373px;
-  height: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  display: block;
 }
 
 .cardImg--deceased {
   filter: grayscale(1);
 }
 
-// La largeur minimale de 373px (utile pour ne pas avoir une image ridiculement
-// petite sur grand écran) ne s'applique qu'à partir d'une largeur d'écran qui
-// peut l'accueillir sans déborder : sur un petit mobile (< 400px de large),
-// une min-width fixe forçait un débordement horizontal de toute la page.
-@media screen and (min-width: 420px) {
-  .cardImg {
-    min-width: 373px;
-  }
-}
-
-.savoir-plus {
-  margin: 0;
-  color: $titre-nom-guitarist !important;
-  font-weight: 600 !important;
-  transition: color 0.15s ease !important;
-
-  &:hover {
-    color: $accent-hover !important;
-  }
-}
-
-.savoir-plus span {
-  padding-left: 5px;
-  color: inherit !important;
-  font-weight: 600 !important;
-}
-
-.go-wiki {
-  margin: 1rem 0;
-  color: $titre-nom-guitarist !important;
-  font-weight: 600 !important;
-  transition: color 0.15s ease !important;
+// CTA "Voir sur Wikipédia" dans le même style que le "En savoir plus" des
+// cartes de l'accueil (.card-cta), pour rester cohérent visuellement.
+.cardWikiCta {
+  margin-top: auto;
+  padding-top: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: $accent;
+  text-decoration: none;
+  transition: gap 0.15s ease, color 0.15s ease;
 
   &:hover {
-    color: $accent-hover !important;
+    gap: 0.6em;
+    color: $accent-hover;
   }
 }
 
-// Un <a> a sa propre couleur de lien par défaut du navigateur (bleu/violet),
-// qui prime sur l'héritage même si .go-wiki fixe déjà `color` sur le <p>
-// parent : sans cette règle, "Go to Wiki" ressort en bleu au lieu de l'ambre
-// du thème, aussi bien en mode sombre qu'en mode clair.
-.go-wiki a,
-.go-wiki a:visited {
-  color: inherit;
+.cardVideoWrap {
+  margin-top: 1.75rem;
 }
 
-.go-wiki span {
-  padding-left: 5px;
-  color: inherit !important;
-  font-weight: 600 !important;
+.cardVideoFrame {
+  margin-top: 0.9rem;
 }
 
 form {

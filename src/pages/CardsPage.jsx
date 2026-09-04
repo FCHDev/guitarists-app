@@ -103,7 +103,7 @@ const CardsPage = ({
                             return seedA - seedB;
                         })
                         .map((guitarist) => (
-                            <CardPost guitarist={guitarist} key={guitarist.id}/>
+                            <CardPost guitarist={guitarist} isConnected={isConnected} key={guitarist.id}/>
                         ))
                 )}
             </div>

@@ -1,52 +1,54 @@
 import * as React from "react";
 import {Link} from "react-router-dom";
 import {motion} from "framer-motion";
-import {ArrowRight} from "lucide-react";
+import {ArrowRight, Pencil} from "lucide-react";
 import ArtistsMainInfo from "./ArtistsMainInfo";
 import {cloudinaryCardThumbnail} from "../utils/cloudinaryUrl";
 
-// Lien "motion" : la carte est un <Link> react-router, avec en plus les
-// props d'animation de Framer Motion (apparition au scroll, léger effet au
-// survol). motion.create() enveloppe un composant existant sans changer ce
-// qu'il rend (remplace l'ancienne API motion(Link), dépréciée).
 const MotionCard = motion.create(Link);
 
-// Mémoïsé : ce composant est rendu ~100 fois sur la page d'accueil, et un
-// re-rendu du parent (ex. bascule du thème clair/sombre) ne doit pas
-// refaire le rendu de chaque carte si son guitariste n'a pas changé.
-// Comparaison par défaut de React.memo (référence des props) suffisante ici :
-// CardsPage passe directement les objets guitarist de la liste, sans en
-// recréer de nouveaux à chaque rendu (filter/sort/map ne clonent pas).
-const CardPost = React.memo(function CardPost({guitarist}) {
+const CardPost = React.memo(function CardPost({guitarist, isConnected}) {
     return (
-        <MotionCard
-            to={`/card/${guitarist.id}`}
-            className="card"
-            initial={{opacity: 0, y: 16}}
-            whileInView={{opacity: 1, y: 0}}
-            viewport={{once: true, margin: "-60px"}}
-            transition={{duration: 0.35, ease: "easeOut"}}
-            whileHover={{y: -6}}
-        >
-            <div className="card-avatar-ring">
-                <img
-                    className={`card-avatar${guitarist.mort ? " card-avatar--deceased" : ""}`}
-                    src={guitarist.imgURL !== null ? cloudinaryCardThumbnail(guitarist.imgURL) : "Pas d'image"}
-                    alt={guitarist.nom}
-                    loading="lazy"
-                />
-            </div>
-            <ArtistsMainInfo guitarist={guitarist}/>
-            <p className="card-bio">{guitarist.bio || ""}</p>
-            {/* Toute la carte est déjà un lien : ceci est un indicateur
-                visuel, pas un second contrôle interactif imbriqué dans le
-                <a> (un <button> dans un <a> n'est pas un HTML valide). */}
-            <span className="card-cta">
-                En savoir plus
-                <ArrowRight size={14} aria-hidden="true" />
-            </span>
-        </MotionCard>
+        <div className="card-wrap">
+            <MotionCard
+                to={`/card/${guitarist.id}`}
+                className="card"
+                initial={{opacity: 0, y: 16}}
+                whileInView={{opacity: 1, y: 0}}
+                viewport={{once: true, margin: "-60px"}}
+                transition={{duration: 0.35, ease: "easeOut"}}
+                whileHover={{y: -6}}
+            >
+                <div className="card-avatar-ring">
+                    <img
+                        className={`card-avatar${guitarist.mort ? " card-avatar--deceased" : ""}`}
+                        src={guitarist.imgURL !== null ? cloudinaryCardThumbnail(guitarist.imgURL) : "Pas d'image"}
+                        alt={guitarist.nom}
+                        loading="lazy"
+                    />
+                </div>
+                <ArtistsMainInfo guitarist={guitarist}/>
+                <p className="card-bio">{guitarist.bio || ""}</p>
+                <span className="card-cta">
+                    En savoir plus
+                    <ArrowRight size={14} aria-hidden="true" />
+                </span>
+            </MotionCard>
+            {/* En dehors du <Link> de la carte (pas de <a> imbriqué en HTML) :
+                positionné par-dessus au survol/clic, mène directement sur la
+                fiche admin avec ce guitariste déjà sélectionné. Visible
+                uniquement pour un admin connecté. */}
+            {isConnected ? (
+                <Link
+                    to={`/admin?edit=${guitarist.id}`}
+                    className="card-edit-btn"
+                    title={`Modifier ${guitarist.nom}`}
+                    aria-label={`Modifier ${guitarist.nom}`}
+                >
+                    <Pencil size={13} aria-hidden="true" />
+                </Link>
+            ) : null}
+        </div>
     );
 });
-
 export default CardPost;

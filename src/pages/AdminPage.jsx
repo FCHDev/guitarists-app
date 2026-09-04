@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import { AiFillCaretLeft } from "react-icons/ai";
 import {
@@ -6,7 +6,7 @@ import {
   updateGuitarist,
   deleteGuitarist as removeGuitarist,
 } from "../services/guitaristsApi";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import ScrollToTop from "react-scroll-to-top";
 import AdminSearchBar from "../components/admin/AdminSearchBar";
 import PhotoUploadField from "../components/admin/PhotoUploadField";
@@ -60,6 +60,14 @@ const AdminPage = ({ guitarists = [] }) => {
   // Identifiant (bigint auto-incrémenté par Postgres) du guitariste en cours de modification.
   // null quand on est en mode "ajout d'un nouveau guitariste".
   const [editingId, setEditingId] = useState(null);
+
+  // Arrivée depuis le bouton "Modifier" d'une vignette ou d'une fiche
+  // détaillée (lien /admin?edit=<id>) : présélectionne ce guitariste dans le
+  // formulaire une fois la liste chargée. hasAppliedEditParam ne s'applique
+  // qu'une fois pour ne pas ré-écraser le formulaire à chaque rafraîchissement
+  // temps réel de la liste des guitaristes pendant que l'admin travaille.
+  const [searchParams] = useSearchParams();
+  const [hasAppliedEditParam, setHasAppliedEditParam] = useState(false);
 
   const handleFieldChange = (name) => (event) => {
     setFormData((previous) => ({ ...previous, [name]: event.target.value }));
@@ -153,6 +161,27 @@ const AdminPage = ({ guitarists = [] }) => {
       )
     );
   };
+
+  useEffect(() => {
+    if (hasAppliedEditParam) return;
+    const editId = searchParams.get("edit");
+    if (!editId || guitarists.length === 0) return;
+    const target = guitarists.find(
+      (guitarist) => String(guitarist.id) === editId
+    );
+    if (target) {
+      loadGuitaristIntoForm(target);
+      setHasAppliedEditParam(true);
+    }
+    // guitarists est bien nécessaire dans les dépendances : au premier rendu
+    // la liste n'est pas encore chargée (fetch async), il faut réessayer une
+    // fois qu'elle arrive. Le garde-fou hasAppliedEditParam évite ensuite
+    // d'écraser le formulaire à chaque rafraîchissement temps réel suivant,
+    // pendant que l'admin travaille dessus. loadGuitaristIntoForm est stable
+    // en pratique (recréée à chaque rendu mais son comportement ne dépend que
+    // de son argument) : l'omettre évite de relancer l'effet à chaque rendu.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, hasAppliedEditParam, guitarists]);
 
   // FONCTION POUR CREER OU METTRE A JOUR UN GUITARISTE
   const writeUserData = async (resolvedImgURL) => {
