@@ -3,9 +3,7 @@ import CardPost from "../components/CardPost";
 import CardsContentLoader from "../loaders/CardsContentLoader";
 import Header from "../components/Header";
 import Search from "../components/Search";
-import SwitchAlive from "../components/SwitchAlive";
-import SwitchArea from "../components/SwitchArea";
-import SwitchSort from "../components/SwitchSort";
+import FilterChips from "../components/FilterChips";
 
 import {Grid} from "@mui/material";
 import ScrollToTop from "react-scroll-to-top";
@@ -20,8 +18,8 @@ const CardsPage = ({
                        setIsConnected,
                    }) => {
     const [searchTerm, setSearchTerm] = useState("");
-    const [selectedRadio, setSelectedRadio] = useState("");
-    const [selectedAreaRadio, setSelectedAreaRadio] = useState("");
+    const [selectedRadio, setSelectedRadio] = useState("all");
+    const [selectedAreaRadio, setSelectedAreaRadio] = useState("all");
     const [selectedSort, setSelectedSort] = useState("random");
 
     return (
@@ -35,18 +33,36 @@ const CardsPage = ({
                 setIsConnected={setIsConnected}
             />
             <Search guitarists={guitarists} setSearchTerm={setSearchTerm}/>
-            <div className="control">
-                <div className="radioSection">
-                    <SwitchAlive
-                        guitarists={guitarists}
-                        setSelectedRadio={setSelectedRadio}
-                    />
-                    <SwitchArea
-                        guitarists={guitarists}
-                        setSelectedAreaRadio={setSelectedAreaRadio}
-                    />
-                    <SwitchSort setSelectedSort={setSelectedSort}/>
-                </div>
+            <div className="filters">
+                <FilterChips
+                    label="Statut"
+                    value={selectedRadio}
+                    onChange={setSelectedRadio}
+                    options={[
+                        {value: "all", label: "Tous"},
+                        {value: "alive", label: "Terre"},
+                        {value: "dead", label: "Paradis"},
+                    ]}
+                />
+                <FilterChips
+                    label="Zone"
+                    value={selectedAreaRadio}
+                    onChange={setSelectedAreaRadio}
+                    options={[
+                        {value: "all", label: "Tous"},
+                        {value: "Europe", label: "Europe"},
+                        {value: "North America", label: "US"},
+                    ]}
+                />
+                <FilterChips
+                    label="Tri"
+                    value={selectedSort}
+                    onChange={setSelectedSort}
+                    options={[
+                        {value: "random", label: "Aléatoire"},
+                        {value: "alphabetical", label: "A → Z"},
+                    ]}
+                />
             </div>
             <Grid
                 container
