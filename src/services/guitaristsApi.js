@@ -2,9 +2,9 @@ import { supabase } from "./supabaseClient";
 
 // La table Postgres utilise des noms de colonnes en snake_case (convention
 // idiomatique côté base), mais tout le reste du code (composants, pages)
-// continue à manipuler des objets en camelCase comme du temps de Firebase :
-// PostgREST permet d'aliaser chaque colonne au moment du select
-// ("alias:colonne"), donc rien à changer côté composants.
+// manipule des objets en camelCase : PostgREST permet d'aliaser chaque
+// colonne au moment du select ("alias:colonne"), donc rien à changer côté
+// composants.
 const SELECT_COLUMNS =
   "id, nom, prenom, nationalite, ville, " +
   "anneeNaissance:annee_naissance, anneeMort:annee_mort, mort, area, " +
@@ -76,11 +76,10 @@ export const deleteGuitarist = async (id) => {
 };
 
 // Écoute en continu les changements de la table (ajout/modification/
-// suppression), pour garder le rafraîchissement automatique de la liste que
-// permettait l'écoute Firebase (onValue sans onlyOnce). On recharge toute
-// la liste à chaque évènement plutôt que d'essayer de fusionner le
-// changement reçu : plus simple et largement suffisant vu le volume (une
-// centaine de fiches).
+// suppression), via Supabase Realtime, pour que la liste se mette à jour
+// automatiquement partout. On recharge toute la liste à chaque évènement
+// plutôt que d'essayer de fusionner le changement reçu : plus simple et
+// largement suffisant vu le volume (une centaine de fiches).
 export const subscribeToGuitarists = (onChange) => {
   const channel = supabase
     .channel("guitarists-changes")

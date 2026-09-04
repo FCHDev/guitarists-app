@@ -65,7 +65,7 @@ function App() {
     // Récupération des guitaristes, puis écoute en continu des changements
     // (ajout/modification/suppression depuis l'admin) via Supabase Realtime :
     // la liste se met donc à jour automatiquement partout, sans recharger
-    // la page (même comportement qu'avec l'écoute Firebase continue avant).
+    // la page.
     useEffect(() => {
         let isMounted = true;
 

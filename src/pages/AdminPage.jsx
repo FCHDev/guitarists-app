@@ -106,7 +106,7 @@ const AdminPage = ({ guitarists = [] }) => {
   const [wiki, setWiki] = React.useState("");
   const [ytRef, setYtRef] = React.useState("https://www.youtube.com/embed/");
 
-  // Identifiant (= clé Firebase) du guitariste en cours de modification.
+  // Identifiant (bigint auto-incrémenté par Postgres) du guitariste en cours de modification.
   // null quand on est en mode "ajout d'un nouveau guitariste".
   const [editingId, setEditingId] = useState(null);
 
