@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import { AiFillCaretLeft, AiOutlineUserAdd } from "react-icons/ai";
+import Autocomplete from "@mui/material/Autocomplete";
+import { AiFillCaretLeft, AiOutlineUserAdd, AiOutlineEdit } from "react-icons/ai";
 import { set, push } from "firebase/database";
 import { refDb } from "../services/firebaseConfig";
 import { db } from "../services/firebaseConfig";
@@ -14,7 +15,7 @@ import ScrollToTop from "react-scroll-to-top";
 const CLOUDINARY_CLOUD_NAME = "gho9ewh4";
 const CLOUDINARY_UPLOAD_PRESET = "guitaristes";
 
-const AdminPage = () => {
+const AdminPage = ({ guitarists = [] }) => {
   /// UPLOAD IMAGES
   const [imageUpload, setImageUpload] = useState(null);
   const [picPreview, setPicPreview] = useState();
@@ -110,6 +111,10 @@ const AdminPage = () => {
   const [wiki, setWiki] = React.useState("");
   const [ytRef, setYtRef] = React.useState("https://www.youtube.com/embed/");
 
+  // Identifiant (= clé Firebase) du guitariste en cours de modification.
+  // null quand on est en mode "ajout d'un nouveau guitariste".
+  const [editingId, setEditingId] = useState(null);
+
   // HANDLES
   const handleAnneeMort = (event) => {
     setAnneeMort(event.target.value);
@@ -157,30 +162,8 @@ const AdminPage = () => {
     setYtRef(event.target.value);
   };
 
-  // FONCTION POUR CREER NOUVEAU GUITARISTE
-  const writeUserData = () => {
-    // Clé unique générée par Firebase plutôt que guitarists.length, qui pouvait
-    // créer des collisions (deux ajouts simultanés, ou ajout après suppression).
-    const newGuitaristRef = push(refDb(db));
-    const newId = newGuitaristRef.key;
-    set(newGuitaristRef, {
-      anneeMort,
-      anneeNaissance,
-      area,
-      bio,
-      bio2,
-      bio3,
-      bio4,
-      id: newId,
-      imgURL,
-      mort,
-      nationalite,
-      nom,
-      prenom,
-      ville,
-      wiki,
-      ytRef,
-    });
+  // Vide le formulaire et repasse en mode "ajout".
+  const resetForm = () => {
     setAnneeMort("");
     setAnneeNaissance("");
     setArea("");
@@ -197,15 +180,97 @@ const AdminPage = () => {
     setWiki("");
     setYtRef("https://www.youtube.com/embed/");
     setPicPreview("");
+    setImageUpload(null);
+    setEditingId(null);
+  };
+
+  // Remplit le formulaire avec les données d'un guitariste existant
+  // (sélectionné via le champ "Modifier un guitariste existant"), ou vide
+  // le formulaire si on désélectionne / annule.
+  const loadGuitaristIntoForm = (guitarist) => {
+    if (!guitarist) {
+      resetForm();
+      return;
+    }
+    setEditingId(guitarist.id);
+    setNom(guitarist.nom || "");
+    setPrenom(guitarist.prenom || "");
+    setAnneeNaissance(guitarist.anneeNaissance || "");
+    setAnneeMort(guitarist.anneeMort || "");
+    setArea(guitarist.area || "");
+    setNationalite(guitarist.nationalite || "");
+    setMort(guitarist.mort || false);
+    setVille(guitarist.ville || "");
+    setWiki(guitarist.wiki || "");
+    setBio(guitarist.bio || "");
+    setBio2(guitarist.bio2 || "");
+    setBio3(guitarist.bio3 || "");
+    setBio4(guitarist.bio4 || "");
+    setImgURL(guitarist.imgURL || "");
+    setYtRef(guitarist.ytRef || "https://www.youtube.com/embed/");
+    setImageUpload(null);
+    setPicPreview(
+      guitarist.imgURL ? (
+        <div className="photo-preview">
+          <img src={guitarist.imgURL} alt={`${guitarist.prenom || ""} ${guitarist.nom || ""}`} />
+        </div>
+      ) : (
+        ""
+      )
+    );
+  };
+
+  // FONCTION POUR CREER OU METTRE A JOUR UN GUITARISTE
+  const writeUserData = () => {
+    const fields = {
+      anneeMort,
+      anneeNaissance,
+      area,
+      bio,
+      bio2,
+      bio3,
+      bio4,
+      imgURL,
+      mort,
+      nationalite,
+      nom,
+      prenom,
+      ville,
+      wiki,
+      ytRef,
+    };
+
+    if (editingId) {
+      // Modification d'un guitariste existant : on réécrit le même nœud,
+      // sous la même clé.
+      set(refDb(db, editingId), { ...fields, id: editingId });
+    } else {
+      // Nouveau guitariste : clé unique générée par Firebase plutôt que
+      // guitarists.length, qui pouvait créer des collisions (deux ajouts
+      // simultanés, ou ajout après suppression).
+      const newGuitaristRef = push(refDb(db));
+      set(newGuitaristRef, { ...fields, id: newGuitaristRef.key });
+    }
+
+    resetForm();
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    const wasEditing = Boolean(editingId);
+    const label = `${prenom} ${nom}`.trim();
     writeUserData();
     // REFRESH PAGE ET SCROLL AU TOP APRES SOUMISSION
     window.scrollTo(0, 0);
-    alert(prenom + nom + " a bien été ajouté !");
+    alert(`${label} a bien été ${wasEditing ? "modifié" : "ajouté"} !`);
   };
+
+  const selectedGuitarist =
+    guitarists.find((guitarist) => guitarist.id === editingId) || null;
+
+  const sortedGuitarists = [...guitarists].sort((a, b) =>
+    `${a.nom || ""} ${a.prenom || ""}`.localeCompare(`${b.nom || ""} ${b.prenom || ""}`)
+  );
 
   return (
     <div className="admin" id="top">
@@ -226,7 +291,30 @@ const AdminPage = () => {
           </Button>
         </Link>
       </nav>
-      <h1 style={{ marginTop: "0.5em" }}>Ajouter une photo</h1>
+
+      <h1 style={{ marginTop: "0.5em" }}>Modifier un guitariste existant</h1>
+      <Autocomplete
+        options={sortedGuitarists}
+        getOptionLabel={(option) => `${option.prenom || ""} ${option.nom || ""}`.trim()}
+        isOptionEqualToValue={(option, value) => option.id === value.id}
+        value={selectedGuitarist}
+        onChange={(event, newValue) => loadGuitaristIntoForm(newValue)}
+        className="search"
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label="Rechercher un guitariste à modifier"
+            margin="normal"
+            fullWidth
+          />
+        )}
+      />
+
+      <div className="separation"></div>
+
+      <h1 style={{ marginTop: "0.5em" }}>
+        {editingId ? "Modifier la photo" : "Ajouter une photo"}
+      </h1>
       <div className="upload-section">
         <label htmlFor="inputTag">
           {" "}
@@ -254,7 +342,11 @@ const AdminPage = () => {
 
       <div className="separation"></div>
 
-      <h1 style={{ marginTop: "0.5em" }}>Ajouter un guitariste</h1>
+      <h1 style={{ marginTop: "0.5em" }}>
+        {editingId
+          ? `Modifier ${prenom} ${nom}`.trim()
+          : "Ajouter un guitariste"}
+      </h1>
       <form>
         <TextField
           id="nom"
@@ -449,15 +541,24 @@ const AdminPage = () => {
           fullWidth={true}
           onChange={handleYtChange}
         />
-        <div style={{ marginTop: "20px" }}>
+        <div style={{ marginTop: "20px", display: "flex", gap: "1em" }}>
           <Button
             variant="contained"
             size="large"
-            endIcon={<AiOutlineUserAdd />}
+            endIcon={editingId ? <AiOutlineEdit /> : <AiOutlineUserAdd />}
             onClick={handleSubmit}
           >
-            Ajouter
+            {editingId ? "Modifier" : "Ajouter"}
           </Button>
+          {editingId && (
+            <Button
+              variant="outlined"
+              size="large"
+              onClick={() => loadGuitaristIntoForm(null)}
+            >
+              Annuler la modification
+            </Button>
+          )}
         </div>
       </form>
       <ScrollToTop smooth={true} />
