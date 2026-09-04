@@ -1,10 +1,12 @@
 import {useEffect, useState, lazy, Suspense} from "react";
 import {Routes, Route, Navigate} from "react-router-dom";
 import Container from "@mui/material/Container";
+import {ThemeProvider} from "@mui/material/styles";
 
 import {onValue, ref} from "firebase/database";
 import {onAuthStateChanged} from "firebase/auth";
 import {db, auth} from "./services/firebaseConfig";
+import theme from "./theme";
 
 const CardsPage = lazy(() => import("./pages/CardsPage"))
 const CardPage = lazy(() => import("./pages/CardPage"))
@@ -61,39 +63,41 @@ function App() {
     }, []);
 
     return (
-        <Container>
-            <div className="App">
-                <Suspense>
-                    <Routes>
-                        <Route
-                            path="/"
-                            exact
-                            element={
-                                <CardsPage
-                                    guitarists={guitarists}
-                                    totalGuitarists={totalGuitarists}
-                                    isLoading={isLoading}
-                                    connectedUser={connectedUser}
-                                    setConnectedUser={setConnectedUser}
-                                    isConnected={isConnected}
-                                    setIsConnected={setIsConnected}
-                                />
-                            }
-                        />
-                        <Route path="card/:id" element={<CardPage/>}/>
-                        <Route
-                            path="/admin"
-                            element={
-                                <RequireAuth authChecked={authChecked} isConnected={isConnected}>
-                                    <AdminPage guitarists={guitarists}/>
-                                </RequireAuth>
-                            }
-                        />
-                        <Route path="/login" element={<Login/>}/>
-                    </Routes>
-                </Suspense>
-            </div>
-        </Container>
+        <ThemeProvider theme={theme}>
+            <Container>
+                <div className="App">
+                    <Suspense>
+                        <Routes>
+                            <Route
+                                path="/"
+                                exact
+                                element={
+                                    <CardsPage
+                                        guitarists={guitarists}
+                                        totalGuitarists={totalGuitarists}
+                                        isLoading={isLoading}
+                                        connectedUser={connectedUser}
+                                        setConnectedUser={setConnectedUser}
+                                        isConnected={isConnected}
+                                        setIsConnected={setIsConnected}
+                                    />
+                                }
+                            />
+                            <Route path="card/:id" element={<CardPage/>}/>
+                            <Route
+                                path="/admin"
+                                element={
+                                    <RequireAuth authChecked={authChecked} isConnected={isConnected}>
+                                        <AdminPage guitarists={guitarists}/>
+                                    </RequireAuth>
+                                }
+                            />
+                            <Route path="/login" element={<Login/>}/>
+                        </Routes>
+                    </Suspense>
+                </div>
+            </Container>
+        </ThemeProvider>
     );
 }
 

@@ -6,11 +6,35 @@
 // (tint-color()/shade-color() de Bootstrap incompatible avec les versions
 // récentes de Dart Sass), sans avoir besoin du contournement qui était ici.
 
+// Refonte visuelle du 2026-09-04 : thème sombre façon "SaaS", inspiré d'une
+// référence Dribbble, avec la palette "Ocean Breeze" choisie par François.
+// Les couleurs Material UI (boutons, champs, focus...) sont centralisées
+// dans src/theme.js ; ce fichier ne gère que les classes "maison".
+
 //VARIABLES
-$titre-nom-guitarist: #ffb703;
-$background: #30638e;
-$card-background: #023047;
-$card-details: #fff;
+// Couleurs Ocean Breeze (échantillonnées depuis la palette fournie)
+$ocean-navy: #2d5b7f;
+$ocean-light-blue: #7ab3d2;
+$ocean-dark: #293f4e;
+$ocean-amber: #f5a427;
+$ocean-red-orange: #f05918;
+
+// Tons dérivés pour l'ambiance "dark SaaS" (fond quasi noir, cartes qui
+// ressortent dessus avec une bordure discrète)
+$bg-page: #101a22;
+$bg-card: $ocean-dark;
+$bg-card-hover: #33495a;
+$border-subtle: rgba($ocean-light-blue, 0.18);
+$text-primary: #f4f7f9;
+$text-muted: $ocean-light-blue;
+$accent: $ocean-amber;
+$accent-hover: $ocean-red-orange;
+
+// Alias conservés pour ne pas réécrire tout le fichier
+$titre-nom-guitarist: $accent;
+$background: $bg-page;
+$card-background: $bg-card;
+$card-details: $text-primary;
 
 *,
 ::before,
@@ -54,6 +78,7 @@ code {
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  padding-top: 1rem;
 
   h1 {
     font-size: 2.5em;
@@ -68,33 +93,31 @@ code {
 }
 
 .adm-btn,
-.login-btn, {
+.login-btn,
+.logout-btn {
   min-width: 4em;
   position: absolute;
   top: 0;
   left: 0;
-  color: white;
+  color: $text-muted;
   background-color: transparent;
-  border: 1px solid white;
-  border-radius: 7px;
+  border: 1.5px solid $text-muted;
+  border-radius: 999px;
   cursor: pointer;
-  padding: 3px;
+  padding: 4px 12px;
   margin: 1em;
+  font-weight: 600;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    background-color: $accent;
+    border-color: $accent;
+    color: $bg-page;
+  }
 }
 .logout-btn {
-  min-width: 4em;
-  position: absolute;
   top: 3em;
-  left: 0;
-  color: white;
-  background-color: transparent;
-  border: 1px solid white;
-  border-radius: 7px;
-  cursor: pointer;
-  padding: 3px;
-  margin: 1em;
 }
-
 
 .posts {
   display: flex;
@@ -154,8 +177,8 @@ a {
   font-weight: bold;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: $titre-nom-guitarist;
-  opacity: 0.75;
+  color: $text-muted;
+  opacity: 0.85;
 }
 
 .filter-chips {
@@ -166,33 +189,43 @@ a {
 }
 
 .filter-chip {
-  border: 1.5px solid $titre-nom-guitarist !important;
-  background: $card-background !important;
-  color: $titre-nom-guitarist !important;
+  border: 1.5px solid $border-subtle !important;
+  background: $bg-card !important;
+  color: $text-muted !important;
   font-family: "JetBrains Mono", sans-serif !important;
   font-weight: bold !important;
+  transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease !important;
+
+  &:hover {
+    border-color: $accent !important;
+    color: $accent !important;
+  }
 }
 
 .filter-chip-active {
-  background: $titre-nom-guitarist !important;
-  color: $card-background !important;
-}
+  background: $accent !important;
+  color: $bg-page !important;
+  border-color: $accent !important;
 
-.MuiButton-containedPrimary svg {
-  padding-right: 3px;
-}
-
-.MuiInputBase-input {
-  background: $card-details !important;
-  border-radius: 5px;
-  width: 100% !important;
+  &:hover {
+    color: $bg-page !important;
+  }
 }
 
 .card {
   margin: 7px;
-  background: $card-background !important;
-  border-radius: 10px !important;
-  border: none;
+  background: $bg-card !important;
+  border-radius: 16px !important;
+  border: 1px solid $border-subtle !important;
+  overflow: hidden;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+
+  &:hover {
+    transform: translateY(-4px);
+    border-color: rgba($ocean-amber, 0.55) !important;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+  }
 
   h1 {
     text-align: start;
@@ -208,8 +241,14 @@ a {
 
 .button-back {
   margin-top: 10px !important;
-  background: #ffb703 !important;
-  color: $background !important;
+  background: $accent !important;
+  color: $bg-page !important;
+  font-weight: 700 !important;
+  transition: background-color 0.15s ease !important;
+
+  &:hover {
+    background: $accent-hover !important;
+  }
 }
 
 .cardPageImg {
@@ -220,11 +259,11 @@ a {
 }
 
 .cardBio {
-  color: #ffffff;
+  color: $text-primary;
 
   p {
     margin-top: 7px;
-    line-height:1.2rem;
+    line-height: 1.2rem;
   }
 }
 
@@ -240,19 +279,19 @@ a {
   margin-bottom: 8px;
   font-weight: normal;
   font-size: 1rem;
-  color: #ffffff;
+  color: $text-muted;
 }
 
 .cardBioH4 {
   margin-top: 14px;
-  color: #ffffff;
+  color: $text-primary;
   font-weight: bold;
   font-size: 1.2rem;
 }
 
 .cardImg {
-  border-radius: 7px;
-  border: 1px solid #292928;
+  border-radius: 14px;
+  border: 1px solid $border-subtle;
   width: 100%;
   max-width: 373px;
   height: auto;
@@ -278,11 +317,16 @@ a {
   margin: 0;
   color: $titre-nom-guitarist !important;
   font-weight: 600 !important;
+  transition: color 0.15s ease !important;
+
+  &:hover {
+    color: $accent-hover !important;
+  }
 }
 
 .savoir-plus span {
   padding-left: 5px;
-  color: $titre-nom-guitarist !important;
+  color: inherit !important;
   font-weight: 600 !important;
 }
 
@@ -290,11 +334,16 @@ a {
   margin: 1rem 0;
   color: $titre-nom-guitarist !important;
   font-weight: 600 !important;
+  transition: color 0.15s ease !important;
+
+  &:hover {
+    color: $accent-hover !important;
+  }
 }
 
 .go-wiki span {
   padding-left: 5px;
-  color: $titre-nom-guitarist !important;
+  color: inherit !important;
   font-weight: 600 !important;
 }
 
@@ -313,9 +362,11 @@ form {
   align-items: center;
   flex-direction: column;
   margin: 20px;
-  padding: 10px;
-  background: $card-details;
-  border-radius: 10px;
+  padding: 20px;
+  background: $bg-card;
+  border: 1px solid $border-subtle;
+  border-radius: 16px;
+  color: $text-primary;
 
   form {
     display: flex;
@@ -327,6 +378,7 @@ form {
 
   h1 {
     margin-bottom: 5px;
+    color: $titre-nom-guitarist;
   }
 }
 
@@ -337,18 +389,21 @@ form {
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  background: $bg-page;
 }
 
 .admin-login {
   width: 40em;
+  max-width: 90vw;
   min-height: 50vh;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
   padding: 10px;
-  background: $card-details;
-  border-radius: 10px;
+  background: $bg-card;
+  border: 1px solid $border-subtle;
+  border-radius: 16px;
 
   form {
     display: flex;
@@ -361,7 +416,7 @@ form {
 
   h1 {
     margin-bottom: 5px;
-    color: #30638e;
+    color: $titre-nom-guitarist;
   }
 }
 
@@ -373,8 +428,8 @@ form {
   justify-content: space-evenly;
   align-items: center;
   flex-direction: column;
-  border-radius: 7px;
-  background-color: #30638e;
+  border-radius: 12px;
+  background-color: $ocean-navy;
 }
 
 .upload-section input {
@@ -385,31 +440,36 @@ form {
   padding: 0.5em;
   width: 8em;
   text-align: center;
-  border-radius: 7px;
-  background-color: white;
+  border-radius: 999px;
+  background-color: $text-primary;
   cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .upload-section label:hover {
-  background-color: black;
-  color: white;
+  background-color: $accent;
+  color: $bg-page;
 }
 
 .photo-preview {
   max-width: 300px;
   max-height: 300px;
-  border: 1px solid black;
+  border: 1px solid $border-subtle;
+  border-radius: 10px;
+  overflow: hidden;
 
   img {
     width: 100%;
     height: auto;
+    display: block;
   }
 }
 
 .separation {
-  height: 0.5px;
+  height: 1px;
   width: 100%;
-  background-color: #30638e;
+  background-color: $border-subtle;
   margin-top: 0.5em;
 }
 
@@ -417,8 +477,8 @@ form {
   width: 100%;
   height: 50px;
   margin-top: 10px;
-  background: $card-background;
-  color: $card-details;
+  background: $bg-card;
+  color: $text-muted;
   display: flex;
   justify-content: center;
   align-items: center;

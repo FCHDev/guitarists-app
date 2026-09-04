@@ -124,7 +124,7 @@ const CardPage = () => {
           <p className="go-wiki">
             <a href={wikiURL} target="_blank" rel="noopener noreferrer">
               <BsBoxArrowInRight
-                style={{ paddingTop: "3px", color: "#ffb703" }}
+                style={{ paddingTop: "3px", color: "#f5a427" }}
               />
               <span>Go to Wiki</span>
             </a>

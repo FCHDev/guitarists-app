@@ -1,25 +1,10 @@
-import {Chip, createTheme, ThemeProvider} from "@mui/material";
+import {Chip} from "@mui/material";
 import {Link} from "react-router-dom";
 import {signOut} from "firebase/auth";
 import {auth} from "../services/firebaseConfig";
 
 
 const Header = ({totalGuitarists, setConnectedUser, isConnected, setIsConnected}) => {
-    const guitaristsTheme = createTheme({
-        typography: {
-            fontFamily: ["JetBrains Mono"].join(","),
-            fontSize: 15,
-            textDecoration: "none",
-        },
-        palette: {
-            primary: {
-                main: "#FFB703",
-            },
-            text: {
-                primary: "#FFB703",
-            },
-        },
-    });
     const date = new Date();
     const options = {
         // weekday: "short",
@@ -61,19 +46,21 @@ const Header = ({totalGuitarists, setConnectedUser, isConnected, setIsConnected}
     // console.log(connectedUser)
 
     return (
-        <ThemeProvider theme={guitaristsTheme}>
-            <div className="header">
-                {isConnected === true ? adminButton : ""}
-                {isConnected === true ? logoutButton : ""}
-                {isConnected === false ? loginButton : ""}
-                <h1>guitarists_</h1>
-                <h4 style={{fontSize:"1rem", fontWeight: "bold"}}>
-                    the database contains{" "}
-                    <Chip label={totalGuitarists} variant="outlined"/>{" "}
-                    <p style={{fontSize: "0.7em"}}>(on {dateDuJour})</p>
-                </h4>
-            </div>
-        </ThemeProvider>
+        <div className="header">
+            {isConnected === true ? adminButton : ""}
+            {isConnected === true ? logoutButton : ""}
+            {isConnected === false ? loginButton : ""}
+            <h1>guitarists_</h1>
+            <h4 style={{fontSize:"1rem", fontWeight: "bold"}}>
+                the database contains{" "}
+                <Chip
+                    label={totalGuitarists}
+                    variant="outlined"
+                    sx={{borderColor: "#f5a427", color: "#f5a427", fontWeight: "bold"}}
+                />{" "}
+                <p style={{fontSize: "0.7em"}}>(on {dateDuJour})</p>
+            </h4>
+        </div>
     );
 };
 
