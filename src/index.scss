@@ -249,7 +249,14 @@ a {
 // d'espace inutilisé sur les côtés).
 .cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  // Le seuil minimal (325px) n'est pas arbitraire : c'est la largeur qu'il
+  // faut au minimum pour que même le nom le plus long de la base (ex.
+  // "Rogers Nelson Prince", ~270px avec la police/graisse de .card-name)
+  // tienne sur une seule ligne dans une carte (330px de large, moins le
+  // padding horizontal). Avec un seuil plus bas, la grille créait plus de
+  // colonnes sur les écrans larges et rétrécissait les cartes en dessous
+  // de cette largeur : les noms, même courts, se retrouvaient tronqués.
+  grid-template-columns: repeat(auto-fill, minmax(325px, 1fr));
   justify-items: center;
   gap: 1.5rem;
   width: 92%;
@@ -268,7 +275,7 @@ a {
   align-items: center;
   text-align: center;
   width: 100%;
-  max-width: 300px;
+  max-width: 340px;
   color: inherit;
   background: $bg-card;
   border-radius: 20px;
@@ -318,6 +325,12 @@ a {
   filter: grayscale(1);
 }
 
+// white-space: nowrap + ellipsis : certains noms/prénoms combinés sont trop
+// longs pour tenir sur une ligne à la taille de police max (ex. "Rogers
+// Nelson Prince"), même avec la carte élargie ci-dessus. Plutôt que de
+// laisser le nom passer sur 2 lignes (ce qui cassait l'alignement des
+// cartes entre elles), on garde une seule ligne et on tronque en dernier
+// recours avec "…" ; ce cas reste rare vu la largeur de carte augmentée.
 .card-name {
   margin: 0;
   font-family: $font-display;
@@ -326,6 +339,10 @@ a {
   line-height: 1.2;
   letter-spacing: -0.02em;
   color: $text-primary;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .card-meta {
