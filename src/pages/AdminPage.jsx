@@ -255,14 +255,21 @@ const AdminPage = ({ guitarists = [] }) => {
     resetForm();
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  // Logique de sauvegarde partagée entre le bouton du formulaire (en bas de
+  // page) et le bouton rapide à côté du champ de recherche (pratique pour ne
+  // pas avoir à redescendre jusqu'en bas à chaque modification).
+  const saveGuitarist = () => {
     const wasEditing = Boolean(editingId);
     const label = `${prenom} ${nom}`.trim();
     writeUserData();
     // REFRESH PAGE ET SCROLL AU TOP APRES SOUMISSION
     window.scrollTo(0, 0);
     alert(`${label} a bien été ${wasEditing ? "modifié" : "ajouté"} !`);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    saveGuitarist();
   };
 
   const selectedGuitarist =
@@ -293,22 +300,44 @@ const AdminPage = ({ guitarists = [] }) => {
       </nav>
 
       <h1 style={{ marginTop: "0.5em" }}>Modifier un guitariste existant</h1>
-      <Autocomplete
-        options={sortedGuitarists}
-        getOptionLabel={(option) => `${option.prenom || ""} ${option.nom || ""}`.trim()}
-        isOptionEqualToValue={(option, value) => option.id === value.id}
-        value={selectedGuitarist}
-        onChange={(event, newValue) => loadGuitaristIntoForm(newValue)}
-        className="search"
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            label="Rechercher un guitariste à modifier"
-            margin="normal"
-            fullWidth
-          />
+      <div style={{ display: "flex", alignItems: "flex-start", gap: "1em" }}>
+        <Autocomplete
+          options={sortedGuitarists}
+          getOptionLabel={(option) => `${option.prenom || ""} ${option.nom || ""}`.trim()}
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          value={selectedGuitarist}
+          onChange={(event, newValue) => loadGuitaristIntoForm(newValue)}
+          className="search"
+          style={{ flex: 1 }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Rechercher un guitariste à modifier"
+              margin="normal"
+              fullWidth
+            />
+          )}
+        />
+        {editingId && (
+          <div style={{ display: "flex", gap: "0.5em", marginTop: "1em" }}>
+            <Button
+              variant="contained"
+              size="large"
+              endIcon={<AiOutlineEdit />}
+              onClick={saveGuitarist}
+            >
+              Modifier
+            </Button>
+            <Button
+              variant="outlined"
+              size="large"
+              onClick={() => loadGuitaristIntoForm(null)}
+            >
+              Annuler
+            </Button>
+          </div>
         )}
-      />
+      </div>
 
       <div className="separation"></div>
 
