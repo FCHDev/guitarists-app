@@ -9,6 +9,7 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import ArtistsMainInfo from "./ArtistsMainInfo";
 import {Fade} from "@mui/material";
+import {cloudinaryCardThumbnail} from "../utils/cloudinaryUrl";
 
 export default function CardPost({guitarist}) {
     return (
@@ -27,7 +28,7 @@ export default function CardPost({guitarist}) {
                     <CardMedia
                         component="img"
                         height="350"
-                        image={guitarist.imgURL !== null ? guitarist.imgURL : "Pas d'image"}
+                        image={guitarist.imgURL !== null ? cloudinaryCardThumbnail(guitarist.imgURL) : "Pas d'image"}
                         alt={guitarist.nom}
                         loading="lazy"
                     />

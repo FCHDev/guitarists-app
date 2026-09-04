@@ -9,6 +9,7 @@ import { AiFillCaretLeft } from "react-icons/ai";
 import { BsBoxArrowInRight } from "react-icons/bs";
 import { FaCross } from "react-icons/fa";
 import { fetchGuitaristById } from "../services/guitaristsApi";
+import { cloudinaryDetailImage } from "../utils/cloudinaryUrl";
 
 const CardPage = () => {
   const { id } = useParams();
@@ -102,7 +103,7 @@ const CardPage = () => {
                 className="cardPageImg"
               >
                 {isLoaded ? (
-                  <img src={imgURL} alt={nom} className="cardImg" />
+                  <img src={cloudinaryDetailImage(imgURL)} alt={nom} className="cardImg" />
                 ) : (
                   <Skeleton variant="rect" width="100%" height={400} />
                 )}
