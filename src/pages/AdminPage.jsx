@@ -4,36 +4,51 @@ import Button from "@mui/material/Button";
 import { AiFillCaretLeft, AiOutlineUserAdd } from "react-icons/ai";
 import { set, push } from "firebase/database";
 import { refDb } from "../services/firebaseConfig";
-import { db, storage } from "../services/firebaseConfig";
+import { db } from "../services/firebaseConfig";
 import { MenuItem, Select } from "@mui/material";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { v4 } from "uuid";
 import { Link } from "react-router-dom";
 import ScrollToTop from "react-scroll-to-top";
+
+// Hébergement des photos : Cloudinary (compte gratuit, upload "unsigned"),
+// à la place de Firebase Storage qui demande depuis peu un forfait payant.
+const CLOUDINARY_CLOUD_NAME = "gho9ewh4";
+const CLOUDINARY_UPLOAD_PRESET = "guitaristes";
 
 const AdminPage = () => {
   /// UPLOAD IMAGES
   const [imageUpload, setImageUpload] = useState(null);
   const [picPreview, setPicPreview] = useState();
+  const [isUploading, setIsUploading] = useState(false);
 
-  const uploadImage = () => {
+  const uploadImage = async () => {
     if (imageUpload == null) return;
-    const imageRef = ref(storage, `images/${imageUpload.name + v4()}`);
-    uploadBytes(imageRef, imageUpload)
-      .then((snapshot) => {
-        getDownloadURL(snapshot.ref).then((url) => {
-          setImgURL(url);
-          setPicPreview(
-            <div className="photo-preview">
-              <img src={url} alt={nom + " " + prenom} />
-            </div>
-          );
-        });
-        // alert("Image uploaded");
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+
+    const formData = new FormData();
+    formData.append("file", imageUpload);
+    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+    setIsUploading(true);
+    try {
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+        { method: "POST", body: formData }
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error?.message || "Échec de l'upload");
+      }
+      setImgURL(data.secure_url);
+      setPicPreview(
+        <div className="photo-preview">
+          <img src={data.secure_url} alt={nom + " " + prenom} />
+        </div>
+      );
+    } catch (error) {
+      console.error(error);
+      alert("Erreur lors de l'upload de l'image : " + error.message);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   /// CONST
@@ -226,8 +241,13 @@ const AdminPage = () => {
         </label>
         <label htmlFor="inputButtonTag">
           {" "}
-          Upload Image
-          <input id="inputButtonTag" type="button" onClick={uploadImage} />{" "}
+          {isUploading ? "Envoi en cours..." : "Upload Image"}
+          <input
+            id="inputButtonTag"
+            type="button"
+            onClick={uploadImage}
+            disabled={isUploading}
+          />{" "}
         </label>
       </div>
       {picPreview}
