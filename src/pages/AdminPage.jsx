@@ -1,27 +1,41 @@
 import React, { useState } from "react";
-import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import Autocomplete from "@mui/material/Autocomplete";
-import {
-  AiFillCaretLeft,
-  AiOutlineUserAdd,
-  AiOutlineEdit,
-  AiOutlineDelete,
-  AiOutlineCloudUpload,
-} from "react-icons/ai";
+import { AiFillCaretLeft } from "react-icons/ai";
 import {
   createGuitarist,
   updateGuitarist,
   deleteGuitarist as removeGuitarist,
 } from "../services/guitaristsApi";
-import { MenuItem, Select } from "@mui/material";
 import { Link } from "react-router-dom";
 import ScrollToTop from "react-scroll-to-top";
+import AdminSearchBar from "../components/admin/AdminSearchBar";
+import PhotoUploadField from "../components/admin/PhotoUploadField";
+import GuitaristFormFields from "../components/admin/GuitaristFormFields";
 
 // Hébergement des photos : Cloudinary (compte gratuit, upload "unsigned"),
 // à la place de Firebase Storage qui demande depuis peu un forfait payant.
 const CLOUDINARY_CLOUD_NAME = "gho9ewh4";
 const CLOUDINARY_UPLOAD_PRESET = "guitaristes";
+
+// État initial du formulaire, réutilisé à la fois pour l'état React et pour
+// vider le formulaire (resetForm) après un ajout/une modification.
+const emptyFormData = {
+  nom: "",
+  prenom: "",
+  anneeNaissance: "",
+  anneeMort: "",
+  area: "",
+  nationalite: "",
+  mort: false,
+  ville: "",
+  wiki: "",
+  bio: "",
+  bio2: "",
+  bio3: "",
+  bio4: "",
+  imgURL: "",
+  ytRef: "https://www.youtube.com/embed/",
+};
 
 const AdminPage = ({ guitarists = [] }) => {
   /// PHOTO
@@ -32,19 +46,38 @@ const AdminPage = ({ guitarists = [] }) => {
   const [picPreview, setPicPreview] = useState();
   const [isSaving, setIsSaving] = useState(false);
 
+  // Tous les champs du formulaire (nom, bio, ville...) regroupés dans un
+  // seul objet plutôt qu'un useState par champ : un seul handler générique
+  // (handleFieldChange) suffit pour les mettre à jour, au lieu d'une
+  // quinzaine de handlers quasi identiques.
+  const [formData, setFormData] = useState(emptyFormData);
+
+  // Copie de formData au moment où une fiche existante a été chargée dans
+  // le formulaire (null en mode "ajout"). Comparée à formData pour savoir
+  // si quelque chose a été modifié depuis (voir hasUnsavedChanges plus bas).
+  const [originalFormData, setOriginalFormData] = useState(null);
+
+  // Identifiant (bigint auto-incrémenté par Postgres) du guitariste en cours de modification.
+  // null quand on est en mode "ajout d'un nouveau guitariste".
+  const [editingId, setEditingId] = useState(null);
+
+  const handleFieldChange = (name) => (event) => {
+    setFormData((previous) => ({ ...previous, [name]: event.target.value }));
+  };
+
   // Envoie le fichier choisi vers Cloudinary si un nouveau a été sélectionné,
   // et renvoie l'URL à enregistrer. Si aucun nouveau fichier n'a été
-  // sélectionné, renvoie simplement l'URL déjà en place (imgURL).
+  // sélectionné, renvoie simplement l'URL déjà en place.
   const resolveImgURL = async () => {
     if (imageUpload == null) {
-      return imgURL;
+      return formData.imgURL;
     }
-    const formData = new FormData();
-    formData.append("file", imageUpload);
-    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+    const uploadData = new FormData();
+    uploadData.append("file", imageUpload);
+    uploadData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
     const response = await fetch(
       `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-      { method: "POST", body: formData }
+      { method: "POST", body: uploadData }
     );
     const data = await response.json();
     if (!response.ok) {
@@ -53,133 +86,26 @@ const AdminPage = ({ guitarists = [] }) => {
     return data.secure_url;
   };
 
-  /// CONST
-  const optionArea = [
-    {
-      value: "North America",
-      label: "USA",
-    },
-    {
-      value: "Europe",
-      label: "Europe",
-    },
-  ];
-  const optionNationalite = [
-    {
-      value: "🇺🇸",
-      label: "🇺🇸",
-    },
-    {
-      value: "🇬🇧",
-      label: "🇬🇧",
-    },
-    {
-      value: "🇫🇷",
-      label: "🇫🇷",
-    },
-    {
-      value: "🇨🇦",
-      label: "🇨🇦",
-    },
-    {
-      value: "🇮🇪",
-      label: "🇮🇪",
-    },
-    {
-      value: "🇦🇺",
-      label: "🇦🇺",
-    },
-    {
-      value: "🇵🇱",
-      label: "🇵🇱",
-    },
-  ];
-
-  // STATES
-  const [anneeMort, setAnneeMort] = useState("");
-  const [anneeNaissance, setAnneeNaissance] = useState("");
-  const [area, setArea] = useState("");
-  const [bio, setBio] = useState("");
-  const [bio2, setBio2] = useState("");
-  const [bio3, setBio3] = useState("");
-  const [bio4, setBio4] = useState("");
-  const [imgURL, setImgURL] = useState("");
-  const [mort, setMort] = useState(false);
-  const [nationalite, setNationalite] = useState("");
-  const [nom, setNom] = React.useState("");
-  const [prenom, setPrenom] = React.useState("");
-  const [ville, setVille] = React.useState("");
-  const [wiki, setWiki] = React.useState("");
-  const [ytRef, setYtRef] = React.useState("https://www.youtube.com/embed/");
-
-  // Identifiant (bigint auto-incrémenté par Postgres) du guitariste en cours de modification.
-  // null quand on est en mode "ajout d'un nouveau guitariste".
-  const [editingId, setEditingId] = useState(null);
-
-  // HANDLES
-  const handleAnneeMort = (event) => {
-    setAnneeMort(event.target.value);
-  };
-  const handleAnneeNaissance = (event) => {
-    setAnneeNaissance(event.target.value);
-  };
-  const handleArea = (event) => {
-    setArea(event.target.value);
-  };
-  const handleBio = (event) => {
-    setBio(event.target.value);
-  };
-  const handleBio2 = (event) => {
-    setBio2(event.target.value);
-  };
-  const handleBio3 = (event) => {
-    setBio3(event.target.value);
-  };
-  const handleBio4 = (event) => {
-    setBio4(event.target.value);
-  };
-  const handleImgURLChange = (event) => {
-    setImgURL(event.target.value);
-  };
-  const handleMortChange = (event) => {
-    setMort(event.target.value);
-  };
-  const handleNationaliteChange = (event) => {
-    setNationalite(event.target.value);
-  };
-  const handleNameChange = (event) => {
-    setNom(event.target.value);
-  };
-  const handlePrenomChange = (event) => {
-    setPrenom(event.target.value);
-  };
-  const handleVilleChange = (event) => {
-    setVille(event.target.value);
-  };
-  const handleWikiChange = (event) => {
-    setWiki(event.target.value);
-  };
-  const handleYtChange = (event) => {
-    setYtRef(event.target.value);
+  // Un fichier a été choisi dans la zone d'envoi de photo : on le mémorise
+  // (l'envoi réel a lieu à l'enregistrement) et on génère l'aperçu.
+  const handleFileSelected = (file) => {
+    setImageUpload(file);
+    if (file) {
+      setPicPreview(
+        <div className="photo-preview">
+          <img
+            src={URL.createObjectURL(file)}
+            alt={`${formData.prenom} ${formData.nom}`}
+          />
+        </div>
+      );
+    }
   };
 
   // Vide le formulaire et repasse en mode "ajout".
   const resetForm = () => {
-    setAnneeMort("");
-    setAnneeNaissance("");
-    setArea("");
-    setBio("");
-    setBio2("");
-    setBio3("");
-    setBio4("");
-    setImgURL("");
-    setMort(false);
-    setNationalite("");
-    setNom("");
-    setPrenom("");
-    setVille("");
-    setWiki("");
-    setYtRef("https://www.youtube.com/embed/");
+    setFormData(emptyFormData);
+    setOriginalFormData(null);
     setPicPreview("");
     setImageUpload(null);
     setEditingId(null);
@@ -194,26 +120,33 @@ const AdminPage = ({ guitarists = [] }) => {
       return;
     }
     setEditingId(guitarist.id);
-    setNom(guitarist.nom || "");
-    setPrenom(guitarist.prenom || "");
-    setAnneeNaissance(guitarist.anneeNaissance || "");
-    setAnneeMort(guitarist.anneeMort || "");
-    setArea(guitarist.area || "");
-    setNationalite(guitarist.nationalite || "");
-    setMort(guitarist.mort || false);
-    setVille(guitarist.ville || "");
-    setWiki(guitarist.wiki || "");
-    setBio(guitarist.bio || "");
-    setBio2(guitarist.bio2 || "");
-    setBio3(guitarist.bio3 || "");
-    setBio4(guitarist.bio4 || "");
-    setImgURL(guitarist.imgURL || "");
-    setYtRef(guitarist.ytRef || "https://www.youtube.com/embed/");
+    const loadedData = {
+      nom: guitarist.nom || "",
+      prenom: guitarist.prenom || "",
+      anneeNaissance: guitarist.anneeNaissance || "",
+      anneeMort: guitarist.anneeMort || "",
+      area: guitarist.area || "",
+      nationalite: guitarist.nationalite || "",
+      mort: guitarist.mort || false,
+      ville: guitarist.ville || "",
+      wiki: guitarist.wiki || "",
+      bio: guitarist.bio || "",
+      bio2: guitarist.bio2 || "",
+      bio3: guitarist.bio3 || "",
+      bio4: guitarist.bio4 || "",
+      imgURL: guitarist.imgURL || "",
+      ytRef: guitarist.ytRef || "https://www.youtube.com/embed/",
+    };
+    setFormData(loadedData);
+    setOriginalFormData(loadedData);
     setImageUpload(null);
     setPicPreview(
       guitarist.imgURL ? (
         <div className="photo-preview">
-          <img src={guitarist.imgURL} alt={`${guitarist.prenom || ""} ${guitarist.nom || ""}`} />
+          <img
+            src={guitarist.imgURL}
+            alt={`${guitarist.prenom || ""} ${guitarist.nom || ""}`}
+          />
         </div>
       ) : (
         ""
@@ -223,23 +156,7 @@ const AdminPage = ({ guitarists = [] }) => {
 
   // FONCTION POUR CREER OU METTRE A JOUR UN GUITARISTE
   const writeUserData = async (resolvedImgURL) => {
-    const fields = {
-      anneeMort,
-      anneeNaissance,
-      area,
-      bio,
-      bio2,
-      bio3,
-      bio4,
-      imgURL: resolvedImgURL,
-      mort,
-      nationalite,
-      nom,
-      prenom,
-      ville,
-      wiki,
-      ytRef,
-    };
+    const fields = { ...formData, imgURL: resolvedImgURL };
 
     if (editingId) {
       // Modification d'un guitariste existant : on réécrit la même ligne.
@@ -259,7 +176,7 @@ const AdminPage = ({ guitarists = [] }) => {
   // d'abord la photo sur Cloudinary si besoin, puis écrit la fiche.
   const saveGuitarist = async () => {
     const wasEditing = Boolean(editingId);
-    const label = `${prenom} ${nom}`.trim();
+    const label = `${formData.prenom} ${formData.nom}`.trim();
     setIsSaving(true);
     try {
       const resolvedImgURL = await resolveImgURL();
@@ -284,7 +201,7 @@ const AdminPage = ({ guitarists = [] }) => {
   // formulaire. Demande une confirmation avant, l'action est irréversible.
   const deleteGuitarist = async () => {
     if (!editingId) return;
-    const label = `${prenom} ${nom}`.trim();
+    const label = `${formData.prenom} ${formData.nom}`.trim();
     const confirmed = window.confirm(
       `Supprimer définitivement ${label} ? Cette action est irréversible.`
     );
@@ -310,6 +227,26 @@ const AdminPage = ({ guitarists = [] }) => {
     `${a.nom || ""} ${a.prenom || ""}`.localeCompare(`${b.nom || ""} ${b.prenom || ""}`)
   );
 
+  const cancelEditing = () => loadGuitaristIntoForm(null);
+
+  // Le bouton passe de "Modifier" à "Enregistrer" dès qu'une photo a été
+  // choisie ou qu'un champ a changé depuis le chargement de la fiche : tant
+  // que rien n'a bougé, "Modifier" ; dès que quelque chose est en attente
+  // d'enregistrement, "Enregistrer".
+  const hasUnsavedChanges =
+    Boolean(editingId) &&
+    (imageUpload != null ||
+      (originalFormData != null &&
+        JSON.stringify(formData) !== JSON.stringify(originalFormData)));
+
+  const saveLabel = isSaving
+    ? "Enregistrement..."
+    : !editingId
+    ? "Ajouter"
+    : hasUnsavedChanges
+    ? "Enregistrer"
+    : "Modifier";
+
   return (
     <div className="admin" id="top">
       <nav>
@@ -331,310 +268,39 @@ const AdminPage = ({ guitarists = [] }) => {
       </nav>
 
       <h1 style={{ marginTop: "0.5em" }}>Modifier un guitariste existant</h1>
-      <div style={{ display: "flex", alignItems: "flex-start", gap: "1em", width: "100%" }}>
-        <Autocomplete
-          options={sortedGuitarists}
-          getOptionLabel={(option) => `${option.prenom || ""} ${option.nom || ""}`.trim()}
-          isOptionEqualToValue={(option, value) => option.id === value.id}
-          value={selectedGuitarist}
-          onChange={(event, newValue) => loadGuitaristIntoForm(newValue)}
-          style={{ flex: 1 }}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Rechercher un guitariste à modifier"
-              margin="normal"
-              fullWidth
-            />
-          )}
-        />
-        {editingId && (
-          <div style={{ display: "flex", gap: "0.5em", marginTop: "1em" }}>
-            <Button
-              variant="contained"
-              size="large"
-              endIcon={<AiOutlineEdit />}
-              onClick={saveGuitarist}
-              disabled={isSaving}
-            >
-              {isSaving ? "Enregistrement..." : "Modifier"}
-            </Button>
-            <Button
-              variant="outlined"
-              color="error"
-              size="large"
-              endIcon={<AiOutlineDelete />}
-              onClick={deleteGuitarist}
-              disabled={isSaving}
-            >
-              {isSaving ? "..." : "Supprimer"}
-            </Button>
-            <Button
-              variant="outlined"
-              size="large"
-              onClick={() => loadGuitaristIntoForm(null)}
-              disabled={isSaving}
-            >
-              Annuler
-            </Button>
-          </div>
-        )}
-      </div>
+      <AdminSearchBar
+        guitarists={sortedGuitarists}
+        selectedGuitarist={selectedGuitarist}
+        onSelect={loadGuitaristIntoForm}
+        editingId={editingId}
+        isSaving={isSaving}
+        saveLabel={saveLabel}
+        onSave={saveGuitarist}
+        onDelete={deleteGuitarist}
+        onCancel={cancelEditing}
+      />
 
       <div className="separation"></div>
 
       <h1 style={{ marginTop: "0.5em" }}>Photo</h1>
-      <div className="upload-section">
-        <AiOutlineCloudUpload className="upload-icon" />
-        <label htmlFor="inputTag" className="upload-label">
-          Choisir une image
-          <input
-            id="inputTag"
-            type="file"
-            accept="image/*"
-            onChange={(event) => {
-              const file = event.target.files[0] || null;
-              setImageUpload(file);
-              if (file) {
-                setPicPreview(
-                  <div className="photo-preview">
-                    <img src={URL.createObjectURL(file)} alt={`${prenom} ${nom}`} />
-                  </div>
-                );
-              }
-            }}
-          />
-        </label>
-        <p className="upload-hint">
-          La photo est envoyée automatiquement lors de l'enregistrement, plus
-          besoin de bouton séparé.
-        </p>
-      </div>
-      {picPreview}
+      <PhotoUploadField onFileSelected={handleFileSelected} preview={picPreview} />
 
       <div className="separation"></div>
 
       <h1 style={{ marginTop: "0.5em" }}>
         {editingId
-          ? `Modifier ${prenom} ${nom}`.trim()
+          ? `Modifier ${formData.prenom} ${formData.nom}`.trim()
           : "Ajouter un guitariste"}
       </h1>
-      <form>
-        <TextField
-          id="nom"
-          label="Nom"
-          multiline
-          maxRows={1}
-          value={nom}
-          className="search"
-          margin="normal"
-          type="search"
-          fullWidth={true}
-          onChange={handleNameChange}
-        />
-        <TextField
-          id="prenom"
-          label="Prénom"
-          multiline
-          maxRows={1}
-          value={prenom}
-          className="search"
-          margin="normal"
-          type="search"
-          fullWidth={true}
-          onChange={handlePrenomChange}
-        />
-        <TextField
-          id="anneeNaissance"
-          label="Annee Naissance"
-          multiline
-          maxRows={4}
-          value={anneeNaissance}
-          onChange={handleAnneeNaissance}
-          className="search"
-          margin="normal"
-          type="search"
-          fullWidth={true}
-        />
-        <TextField
-          id="anneeMort"
-          label="Annee Mort"
-          multiline
-          maxRows={4}
-          value={anneeMort}
-          onChange={handleAnneeMort}
-          className="search"
-          margin="normal"
-          type="search"
-          fullWidth={true}
-        />
-        <TextField
-          id="area"
-          select
-          label="Area"
-          value={area}
-          onChange={handleArea}
-          className="search"
-          margin="normal"
-          helperText="Sélectionnez la zone"
-          fullWidth={true}
-        >
-          {optionArea.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </TextField>
-        <TextField
-          id="nationalite"
-          select
-          label="Nationalité"
-          value={nationalite}
-          onChange={handleNationaliteChange}
-          className="search"
-          margin="normal"
-          helperText="Sélectionnez la nationalité"
-          fullWidth={true}
-        >
-          {optionNationalite.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </TextField>
-
-        <Select
-          labelId="Décédé(e)"
-          id="mort"
-          value={mort}
-          label="Décédé(e)"
-          onChange={handleMortChange}
-          className="search"
-          margin="dense"
-          fullWidth={true}
-        >
-          <MenuItem value={true}>Oui</MenuItem>
-          <MenuItem value={false}>Non</MenuItem>
-        </Select>
-
-        <TextField
-          id="ville"
-          label="Ville"
-          multiline
-          maxRows={4}
-          value={ville}
-          onChange={handleVilleChange}
-          className="search"
-          margin="normal"
-          type="search"
-          fullWidth={true}
-        />
-        <TextField
-          id="wiki"
-          label="Wiki URL"
-          multiline
-          maxRows={4}
-          value={wiki}
-          onChange={handleWikiChange}
-          className="search"
-          margin="normal"
-          type="search"
-          fullWidth={true}
-        />
-        <TextField
-          id="bio"
-          label="Bio"
-          multiline
-          maxRows={20}
-          value={bio}
-          onChange={handleBio}
-          className="search"
-          margin="normal"
-          type="search"
-          fullWidth={true}
-        />
-        <TextField
-          id="bio2"
-          label="Bio 2"
-          multiline
-          maxRows={20}
-          value={bio2}
-          onChange={handleBio2}
-          className="search"
-          margin="normal"
-          type="search"
-          fullWidth={true}
-        />
-        <TextField
-          id="bio3"
-          label="Bio 3"
-          multiline
-          maxRows={20}
-          value={bio3}
-          onChange={handleBio3}
-          className="search"
-          margin="normal"
-          type="search"
-          fullWidth={true}
-        />
-        <TextField
-          id="bio4"
-          label="Bio 4"
-          multiline
-          maxRows={20}
-          value={bio4}
-          onChange={handleBio4}
-          className="search"
-          margin="normal"
-          type="search"
-          fullWidth={true}
-        />
-        <TextField
-          id="imgURL"
-          label="Image URL"
-          multiline
-          maxRows={4}
-          value={imgURL}
-          className="search"
-          margin="normal"
-          type="search"
-          fullWidth={true}
-          onChange={handleImgURLChange}
-        />
-        <TextField
-          id="ytRef"
-          label="YouTube URL"
-          multiline
-          maxRows={4}
-          value={ytRef}
-          className="search"
-          margin="normal"
-          type="search"
-          fullWidth={true}
-          onChange={handleYtChange}
-        />
-        <div style={{ marginTop: "20px", display: "flex", gap: "1em" }}>
-          <Button
-            variant="contained"
-            size="large"
-            endIcon={editingId ? <AiOutlineEdit /> : <AiOutlineUserAdd />}
-            onClick={handleSubmit}
-            disabled={isSaving}
-          >
-            {isSaving ? "Enregistrement..." : editingId ? "Modifier" : "Ajouter"}
-          </Button>
-          {editingId && (
-            <Button
-              variant="outlined"
-              size="large"
-              onClick={() => loadGuitaristIntoForm(null)}
-              disabled={isSaving}
-            >
-              Annuler la modification
-            </Button>
-          )}
-        </div>
-      </form>
+      <GuitaristFormFields
+        formData={formData}
+        onFieldChange={handleFieldChange}
+        editingId={editingId}
+        isSaving={isSaving}
+        saveLabel={saveLabel}
+        onSubmit={handleSubmit}
+        onCancel={cancelEditing}
+      />
       <ScrollToTop smooth={true} />
     </div>
   );
