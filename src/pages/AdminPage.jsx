@@ -332,7 +332,6 @@ const AdminPage = ({ guitarists = [] }) => {
           isOptionEqualToValue={(option, value) => option.id === value.id}
           value={selectedGuitarist}
           onChange={(event, newValue) => loadGuitaristIntoForm(newValue)}
-          className="search"
           style={{ flex: 1 }}
           renderInput={(params) => (
             <TextField
