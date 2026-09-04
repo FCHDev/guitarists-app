@@ -55,46 +55,43 @@ function loadEnvLocal() {
   return env;
 }
 
-function prompt(question, { hidden = false } = {}) {
+function prompt(question) {
   return new Promise((resolve) => {
     const rl = createInterface({ input: process.stdin, output: process.stdout });
-    if (!hidden) {
-      rl.question(question, (answer) => {
-        rl.close();
-        resolve(answer);
-      });
-      return;
-    }
-    const stdin = process.stdin;
-    process.stdout.write(question);
-    let value = "";
-    stdin.setRawMode(true);
-    stdin.resume();
-    stdin.setEncoding("utf8");
-    const onData = (char) => {
-      char = char.toString();
-      if (char === "\n" || char === "\r" || char === "") {
-        stdin.setRawMode(false);
-        stdin.pause();
-        stdin.removeListener("data", onData);
-        process.stdout.write("\n");
-        rl.close();
-        resolve(value);
-        return;
-      }
-      if (char === "") {
-        process.exit(1);
-      }
-      if (char === "") {
-        value = value.slice(0, -1);
-        return;
-      }
-      value += char;
-    };
-    stdin.on("data", onData);
+    rl.question(question, (answer) => {
+      rl.close();
+      resolve(answer);
+    });
   });
 }
 
+// Masque la saisie du mot de passe (remplace chaque caractère par * à l'affichage).
+// Repose sur une astuce readline standard plutôt que sur setRawMode, qui s'est
+// révélé peu fiable selon les terminaux (le mot de passe restait visible).
+function promptHidden(question) {
+  return new Promise((resolve) => {
+    const rl = createInterface({ input: process.stdin, output: process.stdout });
+    let muted = false;
+    const originalWrite = rl._writeToOutput.bind(rl);
+    rl._writeToOutput = (stringToWrite) => {
+      if (muted) {
+        // N'affiche une étoile que pour un vrai caractère saisi, pas pour
+        // les séquences de contrôle (retour chariot, etc.).
+        if (stringToWrite.length === 1 && stringToWrite !== "\n" && stringToWrite !== "\r") {
+          originalWrite("*");
+        }
+        return;
+      }
+      originalWrite(stringToWrite);
+    };
+    rl.question(question, (answer) => {
+      rl.close();
+      process.stdout.write("\n");
+      resolve(answer);
+    });
+    muted = true;
+  });
+}
 async function firebaseSignIn(apiKey, email, password) {
   const res = await fetch(
     `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${apiKey}`,
@@ -180,7 +177,7 @@ async function main() {
 
   console.log("\nConnexion au compte admin nécessaire pour écrire dans la base.");
   const email = await prompt("Email admin : ");
-  const password = await prompt("Mot de passe : ", { hidden: true });
+  const password = await promptHidden("Mot de passe : ");
   const idToken = await firebaseSignIn(apiKey, email, password);
   console.log("Connecté.\n");
 
