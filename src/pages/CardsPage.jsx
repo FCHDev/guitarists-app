@@ -5,6 +5,7 @@ import Header from "../components/Header";
 import Search from "../components/Search";
 import SwitchAlive from "../components/SwitchAlive";
 import SwitchArea from "../components/SwitchArea";
+import SwitchSort from "../components/SwitchSort";
 
 import {Grid} from "@mui/material";
 import ScrollToTop from "react-scroll-to-top";
@@ -21,6 +22,7 @@ const CardsPage = ({
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedRadio, setSelectedRadio] = useState("");
     const [selectedAreaRadio, setSelectedAreaRadio] = useState("");
+    const [selectedSort, setSelectedSort] = useState("random");
 
     return (
         <div className="posts">
@@ -43,6 +45,7 @@ const CardsPage = ({
                         guitarists={guitarists}
                         setSelectedAreaRadio={setSelectedAreaRadio}
                     />
+                    <SwitchSort setSelectedSort={setSelectedSort}/>
                 </div>
             </div>
             <Grid
@@ -79,16 +82,17 @@ const CardsPage = ({
                                 return guitarist;
                             }
                         })
-                        //  ORDRE ALEATOIRE
-                        .sort(function () {
-                            return 0.5 - Math.random();
+                        .sort((a, b) => {
+                            if (selectedSort === "alphabetical") {
+                                return (a.nom || "").localeCompare(b.nom || "");
+                            }
+                            // Aléatoire : mélange stable tant que la liste ne change pas,
+                            // grâce à une "graine" dérivée de l'id (sinon l'ordre changerait
+                            // à chaque rendu, y compris pendant une même visite).
+                            const seedA = String(a.id).split("").reduce((acc, c) => acc + c.charCodeAt(0), 0);
+                            const seedB = String(b.id).split("").reduce((acc, c) => acc + c.charCodeAt(0), 0);
+                            return seedA - seedB;
                         })
-                        //ORDRE ALPHABETIQUE
-                        // .sort(function compare(a, b) {
-                        //     if (a.nom < b.nom) return -1;
-                        //     if (a.nom > b.nom) return 1;
-                        //     return 0;
-                        // })
                         .map((guitarist) => (
                             <CardPost guitarist={guitarist} key={guitarist.id}/>
                         ))
