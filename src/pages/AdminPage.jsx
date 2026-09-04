@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Autocomplete from "@mui/material/Autocomplete";
-import { AiFillCaretLeft, AiOutlineUserAdd, AiOutlineEdit } from "react-icons/ai";
-import { set, push } from "firebase/database";
+import { AiFillCaretLeft, AiOutlineUserAdd, AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
+import { set, push, remove } from "firebase/database";
 import { refDb } from "../services/firebaseConfig";
 import { db } from "../services/firebaseConfig";
 import { MenuItem, Select } from "@mui/material";
@@ -272,6 +272,21 @@ const AdminPage = ({ guitarists = [] }) => {
     saveGuitarist();
   };
 
+  // Supprime définitivement le guitariste actuellement chargé dans le
+  // formulaire. Demande une confirmation avant, l'action est irréversible.
+  const deleteGuitarist = () => {
+    if (!editingId) return;
+    const label = `${prenom} ${nom}`.trim();
+    const confirmed = window.confirm(
+      `Supprimer définitivement ${label} ? Cette action est irréversible.`
+    );
+    if (!confirmed) return;
+    remove(refDb(db, String(editingId)));
+    resetForm();
+    window.scrollTo(0, 0);
+    alert(`${label} a bien été supprimé.`);
+  };
+
   const selectedGuitarist =
     guitarists.find((guitarist) => guitarist.id === editingId) || null;
 
@@ -327,6 +342,15 @@ const AdminPage = ({ guitarists = [] }) => {
               onClick={saveGuitarist}
             >
               Modifier
+            </Button>
+            <Button
+              variant="outlined"
+              color="error"
+              size="large"
+              endIcon={<AiOutlineDelete />}
+              onClick={deleteGuitarist}
+            >
+              Supprimer
             </Button>
             <Button
               variant="outlined"
