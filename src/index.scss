@@ -256,7 +256,13 @@ a {
   // padding horizontal). Avec un seuil plus bas, la grille créait plus de
   // colonnes sur les écrans larges et rétrécissait les cartes en dessous
   // de cette largeur : les noms, même courts, se retrouvaient tronqués.
-  grid-template-columns: repeat(auto-fill, minmax(325px, 1fr));
+  // min(325px, 100%) : sur un très petit mobile (< ~353px de large, une
+  // fois les 92% de marge pris en compte), 325px fixe dépassait la largeur
+  // de l'écran et la carte débordait (rognée par overflow-x:hidden sur le
+  // body). Le seuil se limite maintenant à la largeur disponible quand elle
+  // est plus petite que 325px, sans rien changer dès que l'écran est assez
+  // large pour l'accueillir.
+  grid-template-columns: repeat(auto-fill, minmax(min(325px, 100%), 1fr));
   justify-items: center;
   gap: 1.5rem;
   width: 92%;
@@ -502,6 +508,19 @@ a {
   border-radius: 20px;
   padding: 1.75rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+// Sur mobile (pas de centrage vertical avant 900px, voir .cardPageContent
+// plus haut), le panneau démarre tout en haut de la page : sa croix "Modifier"
+// (coin haut-droit) se retrouvait alors exactement sous le bouton rond de
+// bascule de thème (fixe, lui aussi en haut à droite), et le bouton "Back"
+// (haut-gauche) touchait presque son coin. Un peu de marge en haut sur
+// mobile seulement suffit à tout dégager, sans rien changer sur desktop où
+// le centrage vertical laisse déjà de la place.
+@media screen and (max-width: 899px) {
+  .cardPagePanel {
+    margin-top: 3.5rem;
+  }
 }
 
 // Même traitement (discret, coin, admin uniquement) que .card-edit-btn sur
