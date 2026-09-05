@@ -149,11 +149,21 @@ code {
   top: 3em;
 }
 
+// Largeur explicite indispensable : .App a "align-items: center", donc sans
+// "width: 100%" ici, .posts se dimensionnait sur son propre contenu au lieu
+// de la largeur réelle de l'écran. Or son contenu (.cards-grid) a
+// "max-width: 1400px" : .posts se calculait alors une largeur de 1400px
+// (sa taille "naturelle" maximum), et tout ce qu'il contient (grille,
+// recherche, filtres) héritait de cette largeur de 1400px, quelle que soit
+// la taille réelle de l'écran. Sur mobile, ça provoquait un débordement
+// horizontal silencieux (masqué par overflow-x:hidden sur le body) : grille
+// à 3 colonnes au lieu d'une, barre de recherche et filtres coupés.
 .posts {
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  width: 100%;
   height: 100%;
 
   h1 {
